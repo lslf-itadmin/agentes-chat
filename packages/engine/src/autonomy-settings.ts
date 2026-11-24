@@ -71,18 +71,21 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
 export const WAKE_WORDS_MAX = 50;
 export const WAKE_WORD_LENGTH = 80;
 
-const words = (v: unknown) =>
-  Array.isArray(v)
-    ? [
-        ...new Map(
-          v
-            .filter((w): w is string => typeof w === "string")
-            .map((w) => w.trim().replace(/\s+/g, " ").slice(0, WAKE_WORD_LENGTH))
-            .filter(Boolean)
-            .map((w) => [w.toLowerCase(), w] as const),
-        ).values(),
-      ].slice(0, WAKE_WORDS_MAX)
-    : [];
+/** Wake words as stored: strings, trimmed, one space inside, cut to length, the first of each ignoring capitals. */
+function words(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of v) {
+    if (typeof raw !== "string") continue;
+    const w = raw.trim().replace(/\s+/g, " ").slice(0, WAKE_WORD_LENGTH);
+    if (!w || seen.has(w.toLowerCase())) continue;
+    seen.add(w.toLowerCase());
+    out.push(w);
+    if (out.length === WAKE_WORDS_MAX) break;
+  }
+  return out;
+}
 
 const kinds = (v: unknown) =>
   Array.isArray(v) ? [...new Set(v.filter((k): k is CostKind => COST_KINDS.includes(k as CostKind)))] : [];
