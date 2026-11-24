@@ -1,0 +1,188 @@
+# LSLF: BUILD, SMOKE-TEST AND (ON A MANUAL RUN ONLY) PUBLISH LJ'S AGENTES SERVER IMAGE
+# Step 1 of the fork's plan (issue #2): prove the build path with the unchanged v0.1.2 code. Builds the repository's own
+# Dockerfile for linux/amd64, boots it next to the same Postgres image docker-compose.yml uses and waits for
+# GET /api/health to answer 200 (the Dockerfile's HEALTHCHECK). A pull request that changes this file builds and tests
+# only; a manual run (workflow_dispatch) on the default branch also pushes
+# ghcr.io/lslf-itadmin/agentes-chat:0.1.2-<suffix> with GITHUB_TOKEN and writes its digest to the job summary.
+# Every secret here is a throwaway made in the job; the only repository secret used is GITHUB_TOKEN.
+name: LSLF image
+on:
+  pull_request:
+    paths:
+      - .github/workflows/lslf-image.yml
+  workflow_dispatch:
+    inputs:
+      suffix:
+        description: "Tag suffix: pushes ghcr.io/lslf-itadmin/agentes-chat:0.1.2-<suffix>"
+        required: true
+        default: lslf.0
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: lslf-image-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  IMAGE_REPO: ghcr.io/lslf-itadmin/agentes-chat
+  # Local name for the image under test; it is only pushed under IMAGE_REPO after the smoke test passes.
+  LOCAL_IMAGE: agentes-lslf:test
+  # Same image and digest as docker-compose.yml's postgres service.
+  POSTGRES_IMAGE: pgvector/pgvector:0.8.7-pg18@sha256:2358fcba361ed2233a5ed81b5fe4ca779ccb304120ce531a3bf51c0ed7e2bc11
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      # Used only by the push step, which runs only on workflow_dispatch.
+      packages: write
+    steps:
+      - name: Check the manual run's inputs
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SUFFIX: ${{ inputs.suffix }}
+          REF: ${{ github.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          # The published image must be the default branch's code (lslf/v0.1.2), nothing else.
+          if [ "$REF" != "refs/heads/$DEFAULT_BRANCH" ]; then
+            echo "::error::Publish only from the default branch ($DEFAULT_BRANCH); this run is on $REF."
+            exit 1
+          fi
+          # A Docker tag allows letters, digits, '_', '.' and '-'; the full tag must stay under 128 characters.
+          if ! printf '%s' "$SUFFIX" | grep -Eq '^[A-Za-z0-9_][A-Za-z0-9_.-]{0,100}$'; then
+            echo "::error::suffix '$SUFFIX' is not a valid tag suffix (letters, digits, '_', '.', '-')."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      # 1. Build the repository's own Dockerfile at the checked-out commit, linux/amd64 only.
+      - name: Build the image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --tag "$LOCAL_IMAGE" \
+            .
+          docker image inspect "$LOCAL_IMAGE" --format 'Built {{.Id}} ({{.Os}}/{{.Architecture}})'
+
+      # 2. Smoke test before anything is published.
+      - name: Make throwaway settings
+        run: |
+          pg_password="$(openssl rand -hex 24)"
+          agentes_secret="$(openssl rand -base64 48 | tr -d '\n')"
+          echo "::add-mask::$pg_password"
+          echo "::add-mask::$agentes_secret"
+          {
+            echo "PG_PASSWORD=$pg_password"
+            echo "AGENTES_SECRET=$agentes_secret"
+          } >> "$GITHUB_ENV"
+
+      - name: Start Postgres
+        run: |
+          docker network create agentes-smoke
+          docker run -d --name agentes-db --network agentes-smoke \
+            -e POSTGRES_USER=agentes \
+            -e POSTGRES_PASSWORD="$PG_PASSWORD" \
+            -e POSTGRES_DB=agentes \
+            "$POSTGRES_IMAGE"
+          # Over TCP, as in docker-compose.yml: on first start the init server listens only on the Unix socket.
+          for _ in $(seq 1 60); do
+            if docker exec agentes-db pg_isready -h 127.0.0.1 -U agentes -d agentes >/dev/null 2>&1; then
+              echo "Postgres is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Postgres did not become ready."
+          docker logs agentes-db
+          exit 1
+
+      - name: Start the app
+        run: |
+          docker run -d --name agentes-app --network agentes-smoke \
+            --platform linux/amd64 \
+            -p 127.0.0.1:3000:3000 \
+            -e DATABASE_URL="postgres://agentes:${PG_PASSWORD}@agentes-db:5432/agentes" \
+            -e AGENTES_SECRET="$AGENTES_SECRET" \
+            "$LOCAL_IMAGE"
+
+      - name: Wait for GET /api/health to answer 200
+        run: |
+          # The Dockerfile's HEALTHCHECK allows a 120 s start period; wait up to 5 minutes.
+          deadline=$((SECONDS + 300))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            if [ "$(docker inspect -f '{{.State.Running}}' agentes-app)" != "true" ]; then
+              echo "::error::The app container stopped before /api/health answered."
+              exit 1
+            fi
+            status="$(curl -s -o health.json -w '%{http_code}' http://127.0.0.1:3000/api/health || true)"
+            if [ "$status" = "200" ]; then
+              echo "GET /api/health answered 200 after ${SECONDS}s: $(cat health.json)"
+              {
+                echo "### Smoke test"
+                echo ""
+                echo "\`GET /api/health\` answered **200** after ${SECONDS}s."
+                echo ""
+                echo '```json'
+                cat health.json
+                echo ""
+                echo '```'
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::GET /api/health did not answer 200 within 5 minutes (last status: ${status:-none})."
+          exit 1
+
+      - name: Print the app's log
+        if: failure()
+        run: |
+          docker logs agentes-app 2>&1 || true
+          echo "----- postgres -----"
+          docker logs agentes-db 2>&1 | tail -n 100 || true
+
+      - name: Stop the smoke-test containers
+        if: always()
+        run: |
+          docker rm -f agentes-app agentes-db >/dev/null 2>&1 || true
+          docker network rm agentes-smoke >/dev/null 2>&1 || true
+
+      # 3. Publish, on a manual run only.
+      - name: Push to GHCR
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SUFFIX: ${{ inputs.suffix }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          image="${IMAGE_REPO}:0.1.2-${SUFFIX}"
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+          docker tag "$LOCAL_IMAGE" "$image"
+          docker push "$image" | tee push.log
+          digest="$(grep -oE 'digest: sha256:[0-9a-f]{64}' push.log | tail -n 1 | cut -d' ' -f2)"
+          if [ -z "$digest" ]; then
+            digest="$(docker image inspect "$image" --format '{{range .RepoDigests}}{{println .}}{{end}}' \
+              | grep "^${IMAGE_REPO}@" | head -n 1 | cut -d@ -f2)"
+          fi
+          if [ -z "$digest" ]; then
+            echo "::error::Pushed $image but could not read its digest."
+            exit 1
+          fi
+          docker logout ghcr.io
+          {
+            echo "### Published"
+            echo ""
+            echo "| Image | Digest |"
+            echo "| --- | --- |"
+            echo "| \`${image}\` | \`${digest}\` |"
+            echo ""
+            echo "Pull by digest: \`${IMAGE_REPO}@${digest}\`"
+            echo ""
+            echo "Commit: \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
