@@ -3591,7 +3591,14 @@
       "workMoveAfterCalls": "O tras (llamadas a la IA)",
       "workMoveAfterCallsHelp": "Cuenta solo tras 90 segundos de trabajo: muchas llamadas rápidas siguen siendo una respuesta rápida.",
       "workCheckIns": "Notas de seguimiento en segundo plano",
-      "workCheckInsHelp": "Cuando una actualización prometida no llega, Agentes se lo recuerda al agente y luego publica una nota él mismo. Desactivado: ninguna de las dos."
+      "workCheckInsHelp": "Cuando una actualización prometida no llega, Agentes se lo recuerda al agente y luego publica una nota él mismo. Desactivado: ninguna de las dos.",
+      "rulesTitle": "Líneas propias de Agentes en sus instrucciones",
+      "rulesNote": "Agentes añade estas líneas a las instrucciones de cada agente. Desactivar deja fuera solo esa línea.",
+      "ruleBackground": "Pasar los pedidos largos a segundo plano",
+      "ruleKeepPosted": "En trabajos largos, dar noticias con una línea corta de vez en cuando",
+      "ruleNoPromise": "Nunca terminar un turno con una promesa: hacerlo ahora",
+      "rulePlainWords": "Escribir con palabras sencillas del día a día",
+      "ruleContinue": "Seguir una sola conversación, sin repetir"
     }
   },
   "stretchCard": {

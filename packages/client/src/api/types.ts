@@ -914,6 +914,12 @@ export interface AgentBrakes {
   workMoveAfterMin?: number;
   workMoveAfterCalls?: number;
   workCheckIns?: boolean;
+  /** Agentes' built-in lines in its instructions, each on by default; off leaves out that line alone. */
+  ruleBackground?: boolean;
+  ruleKeepPosted?: boolean;
+  ruleNoPromise?: boolean;
+  rulePlainWords?: boolean;
+  ruleContinue?: boolean;
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -940,6 +946,11 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   workMoveAfterMin: 4,
   workMoveAfterCalls: 20,
   workCheckIns: true,
+  ruleBackground: true,
+  ruleKeepPosted: true,
+  ruleNoPromise: true,
+  rulePlainWords: true,
+  ruleContinue: true,
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

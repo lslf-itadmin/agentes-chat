@@ -3598,7 +3598,14 @@
       "workMoveAfterCalls": "Oppure dopo (chiamate all'IA)",
       "workMoveAfterCallsHelp": "Conta solo dopo 90 secondi di lavoro: tante chiamate veloci sono ancora una risposta veloce.",
       "workCheckIns": "Note di aggiornamento in background",
-      "workCheckInsHelp": "Quando un aggiornamento promesso non arriva, Agentes lo ricorda all'agente e poi pubblica una nota da sé. Disattivato: nessuna delle due."
+      "workCheckInsHelp": "Quando un aggiornamento promesso non arriva, Agentes lo ricorda all'agente e poi pubblica una nota da sé. Disattivato: nessuna delle due.",
+      "rulesTitle": "Righe di Agentes nelle sue istruzioni",
+      "rulesNote": "Agentes aggiunge queste righe alle istruzioni di ogni agente. Disattivare toglie solo quella riga.",
+      "ruleBackground": "Spostare le richieste lunghe in background",
+      "ruleKeepPosted": "Nel lavoro lungo, dare notizie con una breve riga ogni tanto",
+      "ruleNoPromise": "Mai chiudere un turno con una promessa: farlo subito",
+      "rulePlainWords": "Scrivere con parole semplici di tutti i giorni",
+      "ruleContinue": "Proseguire un'unica conversazione, senza ripetere"
     }
   },
   "stretchCard": {

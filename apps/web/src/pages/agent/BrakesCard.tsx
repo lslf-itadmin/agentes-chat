@@ -20,6 +20,8 @@ import { CardHead, useAgentEdit } from "./context";
 
 const AT_ONCE = ["1", "2", "3", "5", "10"];
 const PRS = ["0", "1", "2", "3", "5", "10"];
+/** Agentes' built-in lines in the agent's instructions, one switch each (the server's `context.ts`). */
+const RULES = ["ruleBackground", "ruleKeepPosted", "ruleNoPromise", "rulePlainWords", "ruleContinue"] as const;
 const MOVE_MINUTES = ["2", "4", "5", "10", "15", "30", "60", "120"];
 const MOVE_CALLS = ["10", "20", "30", "50", "100", "200"];
 /** A list of choices that also holds the saved value, so a value set elsewhere still shows. */
@@ -34,7 +36,7 @@ const withValue = (list: string[], value: number) =>
  * work asks first, how many jobs at once, PRs an hour) and which agents it may call. Saved at once, outside the page's
  * save bar, by who manages agents; everyone else reads it. The defaults keep today's autonomy for normal use. Its last
  * section is when the agent wakes up: on/off and one switch per source of wakes (the server's `wake-controls.ts`); after
- * it, the switches over Agentes' own interventions in its replies (the follow-through judge, the move to background work).
+ * it, the switches over Agentes' own interventions in its replies (the follow-through judge, the move to background work) and its built-in lines in the agent's instructions.
  */
 export function BrakesCard() {
   const { t } = useTranslation();
@@ -363,6 +365,21 @@ export function BrakesCard() {
             onCheckedChange={(workCheckIns) => save({ workCheckIns })}
           />
         </SettingRow>
+      </SettingsSection>
+      <SettingsSection title={t("brakes.replies.rulesTitle")}>
+        <SettingNote icon="info" quiet>
+          {t("brakes.replies.rulesNote")}
+        </SettingNote>
+        {RULES.map((key) => (
+          <SettingRow key={key} title={t(`brakes.replies.${key}`)} htmlFor={`agp-replies-${key}`}>
+            <Switch
+              id={`agp-replies-${key}`}
+              checked={w[key]}
+              disabled={!editable}
+              onCheckedChange={(on) => save({ [key]: on })}
+            />
+          </SettingRow>
+        ))}
       </SettingsSection>
     </Card>
   );

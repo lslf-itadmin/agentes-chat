@@ -3476,7 +3476,14 @@
       "workMoveAfterCalls": "Oder nach (KI-Aufrufen)",
       "workMoveAfterCallsHelp": "Zählt erst nach 90 Sekunden Arbeit: Viele schnelle Aufrufe sind noch eine schnelle Antwort.",
       "workCheckIns": "Zwischenmeldungen bei Hintergrundarbeit",
-      "workCheckInsHelp": "Kommt ein versprochenes Update nicht, erinnert Agentes den Agenten und veröffentlicht dann selbst eine Notiz. Aus: keins von beidem."
+      "workCheckInsHelp": "Kommt ein versprochenes Update nicht, erinnert Agentes den Agenten und veröffentlicht dann selbst eine Notiz. Aus: keins von beidem.",
+      "rulesTitle": "Feste Zeilen von Agentes in seinen Anweisungen",
+      "rulesNote": "Agentes fügt diese Zeilen den Anweisungen jedes Agenten hinzu. Aus lässt nur diese Zeile weg.",
+      "ruleBackground": "Lange Anfragen in den Hintergrund verschieben",
+      "ruleKeepPosted": "Bei langer Arbeit ab und zu mit einer kurzen Zeile informieren",
+      "ruleNoPromise": "Eine Runde nie mit einem Versprechen beenden: jetzt erledigen",
+      "rulePlainWords": "In einfachen Alltagsworten schreiben",
+      "ruleContinue": "Eine laufende Unterhaltung fortführen, ohne Wiederholungen"
     }
   },
   "stretchCard": {

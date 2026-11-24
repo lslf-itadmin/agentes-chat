@@ -55,6 +55,17 @@ export interface AutonomySettings {
   workMoveAfterMin: number;
   workMoveAfterCalls: number;
   workCheckIns: boolean;
+  /**
+   * Agentes' built-in lines in every run's instructions (`context.ts`), each on by default; off leaves out that line
+   * alone: `WORK_IN_BACKGROUND_LINE` (`ruleBackground`), the "keep them posted" sentence (`ruleKeepPosted`) and the
+   * "never end your turn on a promise" part (`ruleNoPromise`) of `finishWhatYouStart`, `PLAIN_WORDS_LINE`
+   * (`rulePlainWords`) and `CONTINUE_THE_CONVERSATION` (`ruleContinue`).
+   */
+  ruleBackground: boolean;
+  ruleKeepPosted: boolean;
+  ruleNoPromise: boolean;
+  rulePlainWords: boolean;
+  ruleContinue: boolean;
 }
 
 /**
@@ -85,6 +96,11 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   workMoveAfterMin: 4,
   workMoveAfterCalls: 20,
   workCheckIns: true,
+  ruleBackground: true,
+  ruleKeepPosted: true,
+  ruleNoPromise: true,
+  rulePlainWords: true,
+  ruleContinue: true,
 };
 
 /** The bounds of the automatic move's limits a person may set (minutes of work, model calls). */
@@ -145,6 +161,11 @@ export function autonomySettings(raw: unknown): AutonomySettings {
     workMoveAfterMin: count(r.workMoveAfterMin, WORK_MOVE_MINUTES.min, WORK_MOVE_MINUTES.max, d.workMoveAfterMin),
     workMoveAfterCalls: count(r.workMoveAfterCalls, WORK_MOVE_CALLS.min, WORK_MOVE_CALLS.max, d.workMoveAfterCalls),
     workCheckIns: r.workCheckIns !== false,
+    ruleBackground: r.ruleBackground !== false,
+    ruleKeepPosted: r.ruleKeepPosted !== false,
+    ruleNoPromise: r.ruleNoPromise !== false,
+    rulePlainWords: r.rulePlainWords !== false,
+    ruleContinue: r.ruleContinue !== false,
   };
 }
 

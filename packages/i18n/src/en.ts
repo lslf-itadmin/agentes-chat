@@ -3755,6 +3755,13 @@ export const en = {
       workCheckIns: "Check-in notes in background work",
       workCheckInsHelp:
         "When a promised update doesn't come, Agentes reminds the agent and then posts a note itself. Off: neither.",
+      rulesTitle: "Agentes' built-in lines in its instructions",
+      rulesNote: "Agentes adds these lines to every agent's instructions. Off leaves out that line alone.",
+      ruleBackground: "Move long requests to background work",
+      ruleKeepPosted: "In long work, keep people posted with a short line now and then",
+      ruleNoPromise: "Never end a turn on a promise: do it now",
+      rulePlainWords: "Write in plain everyday words",
+      ruleContinue: "Carry on one ongoing conversation, without repeating",
     },
     peopleNote: "These limits never hold what a person asks for.",
     failed: "Couldn't save. Try again.",

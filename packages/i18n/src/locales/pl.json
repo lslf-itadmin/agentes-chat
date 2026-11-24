@@ -3712,7 +3712,14 @@
       "workMoveAfterCalls": "Lub po (wywołaniach AI)",
       "workMoveAfterCallsHelp": "Liczone dopiero po 90 sekundach pracy: wiele szybkich wywołań to wciąż szybka odpowiedź.",
       "workCheckIns": "Notatki o postępie w pracy w tle",
-      "workCheckInsHelp": "Gdy obiecana aktualizacja nie nadchodzi, Agentes przypomina o niej agentowi, a potem sam publikuje notatkę. Wyłączone: ani jedno, ani drugie."
+      "workCheckInsHelp": "Gdy obiecana aktualizacja nie nadchodzi, Agentes przypomina o niej agentowi, a potem sam publikuje notatkę. Wyłączone: ani jedno, ani drugie.",
+      "rulesTitle": "Wbudowane linie Agentes w jego instrukcjach",
+      "rulesNote": "Agentes dodaje te linie do instrukcji każdego agenta. Wyłączenie pomija tylko tę linię.",
+      "ruleBackground": "Przenosić długie prośby do pracy w tle",
+      "ruleKeepPosted": "Przy długiej pracy co jakiś czas dawać znać krótką linią",
+      "ruleNoPromise": "Nigdy nie kończyć tury obietnicą: zrobić to teraz",
+      "rulePlainWords": "Pisać prostymi, codziennymi słowami",
+      "ruleContinue": "Prowadzić jedną ciągłą rozmowę, bez powtórzeń"
     }
   },
   "stretchCard": {

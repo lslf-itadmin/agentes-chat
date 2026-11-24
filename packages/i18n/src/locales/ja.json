@@ -3350,7 +3350,14 @@
       "workMoveAfterCalls": "または (AI 呼び出し回数)",
       "workMoveAfterCallsHelp": "作業開始から 90 秒後にだけ数えます。速い呼び出しが多くても、まだ素早い回答です。",
       "workCheckIns": "バックグラウンド作業の途中経過メモ",
-      "workCheckInsHelp": "約束した更新が来ないと、Agentes がエージェントに知らせ、その後自分でメモを投稿します。オフ: どちらもしません。"
+      "workCheckInsHelp": "約束した更新が来ないと、Agentes がエージェントに知らせ、その後自分でメモを投稿します。オフ: どちらもしません。",
+      "rulesTitle": "指示に入る Agentes の組み込み行",
+      "rulesNote": "Agentes はすべてのエージェントの指示にこれらの行を加えます。オフにするとその行だけを外します。",
+      "ruleBackground": "長い依頼はバックグラウンド作業へ移す",
+      "ruleKeepPosted": "長い作業ではときどき短い一行で知らせる",
+      "ruleNoPromise": "約束でターンを終えない: 今やる",
+      "rulePlainWords": "日常のやさしい言葉で書く",
+      "ruleContinue": "繰り返さず、ひとつの会話として続ける"
     }
   },
   "stretchCard": {

@@ -397,17 +397,29 @@ export const AgentBrakes = z
       .min(2)
       .max(120)
       .openapi({ description: "Minutes of work before the automatic move. Default 4." }),
-    workMoveAfterCalls: z
-      .number()
-      .int()
-      .min(1)
-      .max(500)
-      .openapi({
-        description: "Model calls before the automatic move (after 90 seconds of work at least). Default 20.",
-      }),
+    workMoveAfterCalls: z.number().int().min(1).max(500).openapi({
+      description: "Model calls before the automatic move (after 90 seconds of work at least). Default 20.",
+    }),
     workCheckIns: z.boolean().openapi({
       description:
         "In background work, Agentes reminds it of a promised update and posts one itself when none comes; off: neither. Default on.",
+    }),
+    ruleBackground: z.boolean().openapi({
+      description: "Its instructions carry Agentes' line on moving long requests to background work. Default on.",
+    }),
+    ruleKeepPosted: z.boolean().openapi({
+      description:
+        'Its instructions carry "In long work, keep them posted with a short line now and then." Default on.',
+    }),
+    ruleNoPromise: z.boolean().openapi({
+      description:
+        'Its instructions carry the "never end your turn on a promise" part of "Finish what you start". Default on.',
+    }),
+    rulePlainWords: z.boolean().openapi({
+      description: "Its instructions carry Agentes' line on writing in plain everyday words. Default on.",
+    }),
+    ruleContinue: z.boolean().openapi({
+      description: "Its instructions carry Agentes' line on carrying on one ongoing conversation. Default on.",
     }),
   })
   .openapi("AgentBrakes");

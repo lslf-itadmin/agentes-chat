@@ -18,12 +18,18 @@ import {
   WORK_LIMITS,
   workEligible,
 } from "../src";
+import {
+  CONTINUE_THE_CONVERSATION,
+  finishWhatYouStart,
+  PLAIN_WORDS_LINE,
+  WORK_IN_BACKGROUND_LINE,
+} from "../src/context";
 import { decideTurnEnd, FOLLOW_THROUGH_OFF, type TurnEnd } from "../src/continuation";
 import { type Fixture, setup } from "./fixtures";
 
 /**
  * Per-agent switches over Agentes' own interventions in an agent's replies, stored with its autonomy brakes: the
- * follow-through judge and the move to background work. Untouched, every one is today's behaviour.
+ * follow-through judge, the move to background work and the built-in lines in its instructions. Untouched, every one is today's behaviour.
  */
 
 setDefaultTimeout(30_000);
@@ -283,6 +289,58 @@ describe("the move to background work", () => {
       }
       await f.close();
       f = undefined as unknown as Fixture;
+    }
+  });
+});
+
+describe("the built-in lines in its instructions", () => {
+  const KEEP_POSTED = "In long work, keep them posted with a short line now and then.";
+  const NO_PROMISE = "Never end your turn on a promise you don't keep in it";
+
+  test("untouched, finishWhatYouStart is word for word today's line", () => {
+    expect(finishWhatYouStart(true)).toBe(
+      "- Finish what you start. Never end your turn on a promise you don't keep in it ('I'll send the numbers', 'vou checar de novo', 'te aviso quando terminar'): do it now. If it has to wait (a build, a deploy, a job still running), set a follow_up to come back to it and say when. After a person approves or answers what you waited on, go on with the task at once and tell them what came of it. When the person already asked for the outcome, do the work instead of asking whether to. In long work, keep them posted with a short line now and then.",
+    );
+    expect(finishWhatYouStart(false, { noPromise: true, keepPosted: true })).toBe(finishWhatYouStart(false));
+    expect(finishWhatYouStart(false, { keepPosted: false })).toBe(
+      "- Finish what you start. Never end your turn on a promise you don't keep in it ('I'll send the numbers', 'vou checar de novo', 'te aviso quando terminar'): do it now. If it has to wait, say what is left and what it waits on. After a person approves or answers what you waited on, go on with the task at once and tell them what came of it. When the person already asked for the outcome, do the work instead of asking whether to.",
+    );
+    expect(finishWhatYouStart(true, { noPromise: false })).toBe(
+      "- Finish what you start. After a person approves or answers what you waited on, go on with the task at once and tell them what came of it. When the person already asked for the outcome, do the work instead of asking whether to. In long work, keep them posted with a short line now and then.",
+    );
+  });
+
+  const promptWith = async (brakes: Record<string, unknown>) => {
+    f = await setup({ workTools: true, followUps: true, reply: () => ({ chunks: ["ok"] }) });
+    if (Object.keys(brakes).length > 0) await setBrakes(f, brakes);
+    await ask(f, "@dev oi");
+    await drainOutbox(f.db, f.handlers);
+    const text = systemText(f.provider.calls[0]?.request.system ?? []);
+    await f.close();
+    f = undefined as unknown as Fixture;
+    return text;
+  };
+  const LINES = {
+    ruleBackground: WORK_IN_BACKGROUND_LINE,
+    ruleKeepPosted: KEEP_POSTED,
+    ruleNoPromise: NO_PROMISE,
+    rulePlainWords: PLAIN_WORDS_LINE,
+    ruleContinue: CONTINUE_THE_CONVERSATION,
+  } as const;
+
+  test("untouched: every line is in the instructions", async () => {
+    const text = await promptWith({});
+    for (const line of Object.values(LINES)) expect(text).toContain(line);
+    expect(text).toContain("Finish what you start.");
+  });
+
+  test("each switched off leaves out that line alone", async () => {
+    for (const [key, line] of Object.entries(LINES)) {
+      const text = await promptWith({ [key]: false });
+      expect(text).not.toContain(line);
+      for (const [other, kept] of Object.entries(LINES)) if (other !== key) expect(text).toContain(kept);
+      expect(text).toContain("Finish what you start.");
+      expect(text).toContain("After a person approves or answers what you waited on");
     }
   });
 });

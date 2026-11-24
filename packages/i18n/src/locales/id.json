@@ -3360,7 +3360,14 @@
       "workMoveAfterCalls": "Atau setelah (panggilan AI)",
       "workMoveAfterCallsHelp": "Dihitung hanya setelah 90 detik bekerja: banyak panggilan cepat tetap jawaban cepat.",
       "workCheckIns": "Catatan kabar di pekerjaan latar belakang",
-      "workCheckInsHelp": "Jika kabar yang dijanjikan tidak datang, Agentes mengingatkan agen lalu memposting catatan sendiri. Mati: keduanya tidak."
+      "workCheckInsHelp": "Jika kabar yang dijanjikan tidak datang, Agentes mengingatkan agen lalu memposting catatan sendiri. Mati: keduanya tidak.",
+      "rulesTitle": "Baris bawaan Agentes dalam instruksinya",
+      "rulesNote": "Agentes menambahkan baris ini ke instruksi setiap agen. Mati hanya menghilangkan baris itu.",
+      "ruleBackground": "Pindahkan permintaan panjang ke latar belakang",
+      "ruleKeepPosted": "Dalam pekerjaan panjang, beri kabar singkat sesekali",
+      "ruleNoPromise": "Jangan akhiri giliran dengan janji: kerjakan sekarang",
+      "rulePlainWords": "Menulis dengan kata sehari-hari yang sederhana",
+      "ruleContinue": "Lanjutkan satu percakapan, tanpa mengulang"
     }
   },
   "stretchCard": {

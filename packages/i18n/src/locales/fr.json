@@ -3596,7 +3596,14 @@
       "workMoveAfterCalls": "Ou après (appels à l'IA)",
       "workMoveAfterCallsHelp": "Compté seulement après 90 secondes de travail : beaucoup d'appels rapides restent une réponse rapide.",
       "workCheckIns": "Notes de suivi en arrière-plan",
-      "workCheckInsHelp": "Quand une mise à jour promise n'arrive pas, Agentes le rappelle à l'agent puis publie lui-même une note. Désactivé : ni l'un ni l'autre."
+      "workCheckInsHelp": "Quand une mise à jour promise n'arrive pas, Agentes le rappelle à l'agent puis publie lui-même une note. Désactivé : ni l'un ni l'autre.",
+      "rulesTitle": "Lignes d'Agentes dans ses instructions",
+      "rulesNote": "Agentes ajoute ces lignes aux instructions de chaque agent. Désactiver retire cette ligne seulement.",
+      "ruleBackground": "Passer les longues demandes en arrière-plan",
+      "ruleKeepPosted": "Pendant un long travail, donner des nouvelles d'une courte ligne de temps en temps",
+      "ruleNoPromise": "Ne jamais finir un tour sur une promesse : le faire tout de suite",
+      "rulePlainWords": "Écrire avec des mots simples de tous les jours",
+      "ruleContinue": "Poursuivre une seule conversation, sans répéter"
     }
   },
   "stretchCard": {

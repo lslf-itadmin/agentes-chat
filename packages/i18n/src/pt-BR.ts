@@ -3662,6 +3662,14 @@ export const ptBR = {
       workCheckIns: "Notas de acompanhamento no segundo plano",
       workCheckInsHelp:
         "Quando uma atualização prometida não chega, o Agentes lembra o agente e depois publica uma nota ele mesmo. Desligado: nenhum dos dois.",
+      rulesTitle: "Linhas do Agentes nas instruções",
+      rulesNote:
+        "O Agentes acrescenta estas linhas às instruções de todo agente. Desligar deixa de fora só aquela linha.",
+      ruleBackground: "Levar pedidos longos para segundo plano",
+      ruleKeepPosted: "Em trabalho longo, dar notícias com uma linha curta de vez em quando",
+      ruleNoPromise: "Nunca terminar o turno com uma promessa: fazer agora",
+      rulePlainWords: "Escrever em palavras simples do dia a dia",
+      ruleContinue: "Seguir uma só conversa, sem repetir",
     },
     peopleNote: "Esses limites nunca seguram o que uma pessoa pede.",
     failed: "Não deu para salvar. Tente de novo.",

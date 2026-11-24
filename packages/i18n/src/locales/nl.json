@@ -3479,7 +3479,14 @@
       "workMoveAfterCalls": "Of na (AI-aanroepen)",
       "workMoveAfterCallsHelp": "Telt pas na 90 seconden werk: veel snelle aanroepen zijn nog een snel antwoord.",
       "workCheckIns": "Tussentijdse berichten bij achtergrondwerk",
-      "workCheckInsHelp": "Komt een beloofde update niet, dan herinnert Agentes de agent eraan en plaatst daarna zelf een bericht. Uit: geen van beide."
+      "workCheckInsHelp": "Komt een beloofde update niet, dan herinnert Agentes de agent eraan en plaatst daarna zelf een bericht. Uit: geen van beide.",
+      "rulesTitle": "Vaste regels van Agentes in zijn instructies",
+      "rulesNote": "Agentes voegt deze regels toe aan de instructies van elke agent. Uit laat alleen die regel weg.",
+      "ruleBackground": "Lange verzoeken naar de achtergrond verplaatsen",
+      "ruleKeepPosted": "Bij lang werk af en toe met een korte regel laten weten hoe het gaat",
+      "ruleNoPromise": "Een beurt nooit met een belofte eindigen: nu doen",
+      "rulePlainWords": "In eenvoudige alledaagse woorden schrijven",
+      "ruleContinue": "Eén doorlopend gesprek voortzetten, zonder herhalen"
     }
   },
   "stretchCard": {
