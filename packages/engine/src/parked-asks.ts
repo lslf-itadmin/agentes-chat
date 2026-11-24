@@ -41,6 +41,7 @@ import { type AgentRun, addRunStep, computerWaitOf, replyThreadOf, transitionRun
 import { withdrawSecretRequest } from "./secrets";
 import type { ToolDefinition, ToolSource } from "./tools/types";
 import { lineHeadLooks, usageNoteHandOn, usageWaitClosed, wakeNextInLine } from "./usage-pause";
+import { wakeAllowed } from "./wake-controls";
 
 const { agentRuns, agents, messages, outbox, users } = schema;
 
@@ -340,6 +341,8 @@ async function closeAside(deps: ParkedDeps, run: AgentRun, r: Release): Promise<
     .orderBy(messages.createdAt);
   const last = asks.at(-1);
   if (!last) return false;
+  // Its agent switched off (`wake-controls.ts`): no run of its own starts; the asks stay with the waiting run.
+  if (!(await wakeAllowed(db, run.agentId, "other", last.id))) return false;
   const t = transcriptOf(run);
   const released: ReleasedAsks = {
     messageIds: r.ids,

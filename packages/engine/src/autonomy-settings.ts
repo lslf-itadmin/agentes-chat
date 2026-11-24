@@ -26,6 +26,20 @@ export interface AutonomySettings {
   /** Its project (a repository, a product): agents of different projects don't call each other unless allowed. */
   project: string;
   otherProjects: boolean;
+  /**
+   * Wake controls (`wake-controls.ts`): `on` false starts no run of it from any source (messages are still kept);
+   * each source has its own switch. Mentions by other agents: `judge` (a judge reads whether they ask it something),
+   * `always` (naming its handle wakes it, no judge) or `off`. Wake words wake it as an @mention does, in messages of
+   * `wakeWordsFrom`.
+   */
+  on: boolean;
+  wakePeople: boolean;
+  wakeAgents: "judge" | "always" | "off";
+  wakeRouter: boolean;
+  wakeHandOffs: boolean;
+  wakeScheduled: boolean;
+  wakeWords: string[];
+  wakeWordsFrom: "people" | "agents" | "both";
 }
 
 /**
@@ -43,7 +57,35 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   callAgentIds: [],
   project: "",
   otherProjects: false,
+  on: true,
+  wakePeople: true,
+  wakeAgents: "judge",
+  wakeRouter: true,
+  wakeHandOffs: true,
+  wakeScheduled: true,
+  wakeWords: [],
+  wakeWordsFrom: "people",
 };
+
+/** Wake words a list holds at most, and the length of each (`wake-controls.ts`). */
+export const WAKE_WORDS_MAX = 50;
+export const WAKE_WORD_LENGTH = 80;
+
+/** Wake words as stored: strings, trimmed, one space inside, cut to length, the first of each ignoring capitals. */
+function words(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of v) {
+    if (typeof raw !== "string") continue;
+    const w = raw.trim().replace(/\s+/g, " ").slice(0, WAKE_WORD_LENGTH);
+    if (!w || seen.has(w.toLowerCase())) continue;
+    seen.add(w.toLowerCase());
+    out.push(w);
+    if (out.length === WAKE_WORDS_MAX) break;
+  }
+  return out;
+}
 
 const kinds = (v: unknown) =>
   Array.isArray(v) ? [...new Set(v.filter((k): k is CostKind => COST_KINDS.includes(k as CostKind)))] : [];
@@ -66,6 +108,14 @@ export function autonomySettings(raw: unknown): AutonomySettings {
       : [],
     project: typeof r.project === "string" ? r.project.trim().slice(0, 80) : "",
     otherProjects: r.otherProjects === true,
+    on: r.on !== false,
+    wakePeople: r.wakePeople !== false,
+    wakeAgents: r.wakeAgents === "always" || r.wakeAgents === "off" ? r.wakeAgents : "judge",
+    wakeRouter: r.wakeRouter !== false,
+    wakeHandOffs: r.wakeHandOffs !== false,
+    wakeScheduled: r.wakeScheduled !== false,
+    wakeWords: words(r.wakeWords),
+    wakeWordsFrom: r.wakeWordsFrom === "agents" || r.wakeWordsFrom === "both" ? r.wakeWordsFrom : "people",
   };
 }
 

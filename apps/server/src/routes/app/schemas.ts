@@ -358,6 +358,31 @@ export const AgentBrakes = z
       description: "Its project (a repository, a product): agents of different projects don't call each other.",
     }),
     otherProjects: z.boolean().openapi({ description: "It may call agents of other projects too." }),
+    on: z.boolean().openapi({
+      description: "Off: no run of it starts from any source (messages are still kept). Default on.",
+    }),
+    wakePeople: z.boolean().openapi({ description: "A person's @mention or DM wakes it. Default on." }),
+    wakeAgents: z.enum(["judge", "always", "off"]).openapi({
+      description:
+        "Another agent's @mention: `judge` (a judge reads whether it asks it something, the default), `always` (naming its handle wakes it, no judge) or `off`.",
+    }),
+    wakeRouter: z.boolean().openapi({
+      description: "Messages that name nobody may go to it (the router), in every channel. Default on.",
+    }),
+    wakeHandOffs: z.boolean().openapi({
+      description:
+        "Other agents' `ask_agent` and `tell_agent`, and a routine's `hand_off` report, wake it. Default on.",
+    }),
+    wakeScheduled: z.boolean().openapi({
+      description: "Its own scheduled wakes (its `follow_up`, reminders, routines) run. Default on.",
+    }),
+    wakeWords: z
+      .array(z.string().max(80))
+      .max(50)
+      .openapi({ description: "Words or phrases that wake it like an @mention (whole word, any capitals)." }),
+    wakeWordsFrom: z.enum(["people", "agents", "both"]).openapi({
+      description: "Whose messages its wake words count in. Default `people`.",
+    }),
   })
   .openapi("AgentBrakes");
 

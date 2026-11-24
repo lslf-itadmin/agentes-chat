@@ -892,6 +892,18 @@ export interface AgentBrakes {
   callAgentIds: string[];
   project: string;
   otherProjects: boolean;
+  /**
+   * Wake controls; absent from a server without them (the defaults). `on` false: no run starts from any source.
+   * Each source has its own switch; other agents' mentions are judged, always wake it, or are off.
+   */
+  on?: boolean;
+  wakePeople?: boolean;
+  wakeAgents?: "judge" | "always" | "off";
+  wakeRouter?: boolean;
+  wakeHandOffs?: boolean;
+  wakeScheduled?: boolean;
+  wakeWords?: string[];
+  wakeWordsFrom?: "people" | "agents" | "both";
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -905,6 +917,14 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   callAgentIds: [],
   project: "",
   otherProjects: false,
+  on: true,
+  wakePeople: true,
+  wakeAgents: "judge",
+  wakeRouter: true,
+  wakeHandOffs: true,
+  wakeScheduled: true,
+  wakeWords: [],
+  wakeWordsFrom: "people",
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

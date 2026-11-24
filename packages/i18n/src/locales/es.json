@@ -3557,7 +3557,30 @@
     "projectPlaceholder": "App móvil",
     "otherProjects": "Puede llamar a agentes de otros proyectos",
     "peopleNote": "Estos límites nunca detienen lo que pide una persona.",
-    "failed": "No se pudo guardar. Inténtalo de nuevo."
+    "failed": "No se pudo guardar. Inténtalo de nuevo.",
+    "wake": {
+      "title": "Cuándo se despierta",
+      "on": "Encendido",
+      "onHelp": "Apagado: nada inicia su trabajo, venga de donde venga. Los mensajes se siguen guardando.",
+      "offNote": "Apagado: no empieza ningún trabajo hasta que alguien lo vuelva a encender.",
+      "people": "@mención o DM de una persona",
+      "agents": "@mención de otro agente",
+      "agentsHelp": "Evaluada: se despierta solo cuando el mensaje le pide algo. Siempre: un agente que escribe su handle lo despierta.",
+      "judge": "Evaluada",
+      "always": "Siempre",
+      "off": "Nunca",
+      "router": "Mensajes que no nombran a nadie",
+      "routerHelp": "En todos los canales. Apagado: el enrutador nunca lo elige, diga lo que diga cada canal.",
+      "handOffs": "Trabajo que le pasan otros agentes",
+      "scheduled": "Sus propios seguimientos, recordatorios y rutinas",
+      "words": "Palabras que lo despiertan",
+      "wordsHelp": "Sepáralas con comas. Un mensaje con una de ellas, como palabra completa, lo despierta como una @mención.",
+      "wordsPlaceholder": "factura, revisión de contrato",
+      "wordsFrom": "Las palabras cuentan en mensajes de",
+      "fromPeople": "Personas",
+      "fromAgents": "Agentes",
+      "fromBoth": "Ambos"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} los dejó seguir · {{time}}",

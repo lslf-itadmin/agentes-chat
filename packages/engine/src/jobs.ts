@@ -18,6 +18,7 @@ import type { ArtifactDeps } from "./artifacts";
 import { PLAN_OPENED_JOB } from "./audience";
 import { routinePostRun, runAuthorityById } from "./authority";
 import { AUTONOMY_REPORT_JOB, queueAutonomyEmail } from "./autonomy-report";
+import { autonomySettings } from "./autonomy-settings";
 import { closePoll, POLL_CLOSE_JOB } from "./blocks";
 import { PLAN_LENT_JOB } from "./brain-settings";
 import { type BrakeReport, brakeWakes, callableAgents, LATER_JOB, notCallableWhy } from "./brakes";
@@ -132,6 +133,8 @@ import { assessThread } from "./thread-assess";
 import { runVaultSync, VAULT_SYNC_JOB, type VaultDeps } from "./vault";
 import { transcribeVoiceClip, VOICE_JOB, type VoiceDeps } from "./voice";
 import { saveWaitlistContact } from "./waitlist";
+import { logWithheld, type WakeSource, wakeRefusal } from "./wake-controls";
+import { startWordWakes, wordWakeCandidates } from "./wake-words";
 import { checkInWork, followUpWork, WORK_CHECK_IN_JOB, WORK_FOLLOW_UP_JOB } from "./works";
 import {
   ACCOUNT_DELETE_JOB,
@@ -337,19 +340,31 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
             handle: schema.agents.handle,
             name: schema.agents.name,
             role: schema.agents.role,
+            brakes: schema.agents.autonomyBrakes,
           })
           .from(schema.agents)
           .where(and(eq(schema.agents.orgId, message.orgId), inArray(schema.agents.id, ids)))
       : [];
-    const others = targets.filter((t) => t.id !== message.authorAgentId);
+    const named = targets.filter((t) => t.id !== message.authorAgentId);
+    // Its wake controls (`wake-controls.ts`): an agent switched off, or off for other agents' mentions, is never judged
+    // nor woken; one set to "always wake" wakes when an agent names its handle, with no judge (the hop limit and the
+    // caller's `callAgents` still hold, below and in `dispatchMentions`).
+    const others = named.filter((t) => {
+      const why = wakeRefusal(autonomySettings(t.brakes), "agent_mention");
+      if (why) logWithheld(t.id, "agent_mention", message.id, why);
+      return why === null;
+    });
+    const always = new Set(others.filter((t) => autonomySettings(t.brakes).wakeAgents === "always").map((t) => t.id));
+    const judged = others.filter((t) => !always.has(t.id));
     const scores = new Map<string, number>();
+    for (const id of always) scores.set(id, 1);
     let strategy = "mention-judge";
     let error: string | null = null;
     const judge = deps.context ? judgeOf(deps.context) : null;
     if (options.wakeAll) {
       for (const t of others) scores.set(t.id, 1);
       strategy = "mention-routine";
-    } else if (judge && others.length > 0) {
+    } else if (judge && judged.length > 0) {
       const [[author], answering] = await Promise.all([
         message.authorAgentId
           ? deps.db
@@ -366,7 +381,7 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
           body: message.body,
           author: author ? `@${author.handle}` : "agent",
           answering,
-          targets: others.map((t) => ({ agentId: t.id, handle: t.handle, name: t.name, role: t.role || null })),
+          targets: judged.map((t) => ({ agentId: t.id, handle: t.handle, name: t.name, role: t.role || null })),
         });
         for (const [id, nothing] of out) scores.set(id, 1 - nothing);
         strategy = `mention-${judge.name}`;
@@ -377,7 +392,7 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
     // No judge, or it failed: only a message that opens by addressing an agent ("@ada já postei…") wakes it. Waking
     // every agent named would let two agents thank each other in a loop while the judge is down.
     if (!options.wakeAll && (!judge || error !== null))
-      for (const t of others) if (opensWith(message.body, t.handle)) scores.set(t.id, 1);
+      for (const t of judged) if (opensWith(message.body, t.handle)) scores.set(t.id, 1);
     // A deep chain needs a clear reason to wake an agent whose computer already has work waiting for room.
     const crowded =
       message.hop + 1 >= DEEP_WAKE_HOP
@@ -569,6 +584,9 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
       });
       // A tell_agent note (agents' DM, no mention) starts its run itself.
       if (wake.length > 0 && message.meta.agentNote) await startNoteRun(deps.db, message, agentId);
+      // A wake word's wake (`wake-words.ts`) names no mention: it starts through the word path, already braked.
+      else if (wake.length > 0 && !message.mentionedAgentIds.includes(agentId))
+        await startWordWakes(deps, message, wake, { maxHops: deps.maxHops, braked: true });
       else if (wake.length > 0)
         await dispatchMentions(
           deps.db,
@@ -610,6 +628,24 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
           ...intent,
         });
       const where = await getChannelCached(deps.db, message.orgId, message.channelId);
+      // Wake words (`wake-words.ts`): an agent whose word or phrase the message holds wakes as if mentioned, before the
+      // paths below (a mention, the router) decide the rest. Never on a notice or a card, between agents in their DM,
+      // in a mission's thread (only its owner and deciders make its agent act), or on a mission suggestion.
+      const quiet =
+        message.meta.notice ||
+        message.meta.noAi ||
+        message.meta.actionCard ||
+        message.meta.autonomyNote ||
+        message.meta.movedOn ||
+        message.meta.missionSuggestion;
+      if (!quiet && !(where && isAgentOnlyDm(where))) {
+        const worded = await wordWakeCandidates(deps.db, message);
+        if (
+          worded.length > 0 &&
+          !(message.threadId && (await missionOfThread(deps.db, message.orgId, message.threadId)))
+        )
+          await startWordWakes({ ...deps, judge: brakeJudge() }, message, worded, { maxHops: deps.maxHops });
+      }
       // Addressed a mission's agent without the right to act there (ADR 0029): a suggestion, no run.
       if (message.meta.missionSuggestion) return routed("none", message.mentionedAgentIds, [], "mission_suggestion");
       // Someone who acts in a mission waiting to be concluded wrote in its thread: new work, active again.
@@ -808,6 +844,7 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
         trigger: RunTrigger;
         look: number;
         since?: number;
+        source?: WakeSource;
       };
       await deliverParked(deps.db, orgOf(job), p);
     },

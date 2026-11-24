@@ -103,6 +103,7 @@ import {
   pauseContinuesPastPlan,
   USAGE_WAIT_CODES,
 } from "./usage-pause";
+import { wakeAllowed } from "./wake-controls";
 
 export { startRoutineRun } from "./routine-room";
 
@@ -2197,6 +2198,10 @@ async function fireClaimedRun(deps: RoutineDeps, run: RunRow) {
   // schedule (`standing.ts`).
   const refusal = await standingRefusal(db, run.orgId, routine.agentId);
   if (refusal) return skip(refusal.code.replace(".", "_"));
+  // Its agent's wake controls (`wake-controls.ts`): switched off, or its scheduled wakes (routines, reminders) off. A
+  // run a person asked for by hand needs the agent on only. The slot passes; the routine keeps its schedule.
+  if (!(await wakeAllowed(db, routine.agentId, run.trigger === "manual" ? "other" : "scheduled", run.id)))
+    return skip("wake_off");
   const paused = async (reason: RoutinePausedReason) => {
     await pauseRoutine(deps, routine, reason);
     // A widget's routine says it on its widget (ADR 0135 §6).

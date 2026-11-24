@@ -3442,7 +3442,30 @@
     "projectPlaceholder": "Mobile App",
     "otherProjects": "Darf Agenten anderer Projekte rufen",
     "peopleNote": "Diese Grenzen halten nie auf, worum eine Person bittet.",
-    "failed": "Konnte nicht gespeichert werden. Versuch es noch einmal."
+    "failed": "Konnte nicht gespeichert werden. Versuch es noch einmal.",
+    "wake": {
+      "title": "Wann es aufwacht",
+      "on": "Eingeschaltet",
+      "onHelp": "Aus: Nichts startet seine Arbeit, egal woher. Nachrichten bleiben gespeichert.",
+      "offNote": "Ausgeschaltet: Es beginnt keine Arbeit, bis jemand es wieder einschaltet.",
+      "people": "@Erwähnung oder DM einer Person",
+      "agents": "@Erwähnung durch einen anderen Agenten",
+      "agentsHelp": "Geprüft: Es wacht nur auf, wenn die Nachricht es um etwas bittet. Immer: Ein Agent, der sein Handle schreibt, weckt es.",
+      "judge": "Geprüft",
+      "always": "Immer",
+      "off": "Nie",
+      "router": "Nachrichten, die niemanden nennen",
+      "routerHelp": "In jedem Kanal. Aus: Der Router wählt es nie, egal was ein Kanal sagt.",
+      "handOffs": "Übergaben von anderen Agenten",
+      "scheduled": "Eigene Nachfassungen, Erinnerungen und Routinen",
+      "words": "Weckwörter",
+      "wordsHelp": "Mit Kommas trennen. Eine Nachricht mit einem davon als ganzes Wort weckt es wie eine @Erwähnung.",
+      "wordsPlaceholder": "Rechnung, Vertragsprüfung",
+      "wordsFrom": "Wörter zählen in Nachrichten von",
+      "fromPeople": "Personen",
+      "fromAgents": "Agenten",
+      "fromBoth": "Beiden"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} hat sie weitermachen lassen · {{time}}",

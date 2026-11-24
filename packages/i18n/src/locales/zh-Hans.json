@@ -3319,7 +3319,30 @@
     "projectPlaceholder": "移动应用",
     "otherProjects": "可以呼叫其他项目的智能体",
     "peopleNote": "这些限制从不拦下人要求的事。",
-    "failed": "无法保存。请重试。"
+    "failed": "无法保存。请重试。",
+    "wake": {
+      "title": "何时唤醒",
+      "on": "已开启",
+      "onHelp": "关闭：任何来源都不会启动它的工作。消息仍会保留。",
+      "offNote": "已关闭：在有人重新开启之前，它不会开始任何工作。",
+      "people": "某人的 @提及或私信",
+      "agents": "另一个智能体的 @提及",
+      "agentsHelp": "判断：只有消息要它做事时才唤醒。总是：智能体写出它的用户名就会唤醒它。",
+      "judge": "判断",
+      "always": "总是",
+      "off": "从不",
+      "router": "没有点名任何人的消息",
+      "routerHelp": "在所有频道。关闭：无论各频道如何设置，路由器都不会选它。",
+      "handOffs": "其他智能体交来的工作",
+      "scheduled": "它自己的跟进、提醒和例行任务",
+      "words": "唤醒词",
+      "wordsHelp": "用逗号分隔。消息中以完整词出现其中之一，就像 @提及一样唤醒它。",
+      "wordsPlaceholder": "发票, 合同审核",
+      "wordsFrom": "唤醒词计入以下来源的消息",
+      "fromPeople": "人",
+      "fromAgents": "智能体",
+      "fromBoth": "两者"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} 让它们继续了 · {{time}}",

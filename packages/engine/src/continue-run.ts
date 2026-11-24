@@ -15,6 +15,7 @@ import { enqueue } from "./outbox";
 import { personCanPost } from "./routine-state";
 import { ACTIVE_RUN_STATUSES, takeInbox } from "./run-inbox";
 import { continuableEnd } from "./runs";
+import { wakeAllowed } from "./wake-controls";
 import { announceWork, reopenWork, updatesThreadOf } from "./works";
 
 const { agentRuns, agents, messages, channels, users } = schema;
@@ -109,6 +110,9 @@ export async function continueRun(
     )
     .limit(1);
   if (busy) throw new ConflictError("This agent is already working here", "run.agent_busy");
+  // Its agent switched off (`wake-controls.ts`): nothing starts until a person turns it back on.
+  if (!(await wakeAllowed(db, stopped.agentId, "other", replyId)))
+    throw new ConflictError("This agent is turned off", "agent.off");
 
   const [person] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId));
   const carried = stopped.transcript as unknown as Transcript;
@@ -314,6 +318,8 @@ export async function restartAfterStopAndSend(
     .orderBy(sql`${messages.createdAt} desc`)
     .limit(1);
   if (!said) return null;
+  // Its agent switched off since (`wake-controls.ts`): the message stays, no new run.
+  if (!(await wakeAllowed(db, stopped.agentId, "other", said.id))) return null;
   const [person] = await db.select({ name: users.name }).from(users).where(eq(users.id, by));
   const line = `[${person?.name ?? "A person"} stopped you to say this:]\n\n${said.body}`;
   const newRunId = Bun.randomUUIDv7();

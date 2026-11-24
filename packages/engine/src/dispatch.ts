@@ -27,6 +27,7 @@ import { ACTIVE_RUN_STATUSES, queueOnRun } from "./run-inbox";
 import { inChannelRun, waitsOnUsage, workKeepsThread, workTakesPersonMessage } from "./run-scope";
 import type { AgentRun } from "./runs";
 import { holdOf, hopLimitReached, pauseStretch, personAskedLately, stretchOf, stretchStop } from "./stretch";
+import { type WakeSource, wakeAllowed } from "./wake-controls";
 
 const { agentConsultations, agents, agentWorks, channelMembers, channels, agentRuns, messages, outbox } = schema;
 
@@ -110,6 +111,11 @@ export interface StartRunOptions {
   park?: number;
   /** A parked wake: when it started waiting. Its run's place in the computer's line counts from then. */
   parkedSince?: number;
+  /**
+   * Where the wake comes from (`wake-controls.ts`): a run starts only when the agent is on and that source's switch is
+   * on. Absent: `other`, held by the on/off switch alone. Joining a run already going is no new wake.
+   */
+  source?: WakeSource;
 }
 
 /**
@@ -198,6 +204,8 @@ export async function startOrJoinRun(
       return { joined: run.id };
     }
   }
+  // The agent's wake controls: off, or this source switched off, starts nothing (the message stays).
+  if (!(await wakeAllowed(tx, agentId, options.source ?? "other", message.id))) return null;
   if (options.park && message.authorAgentId && message.hop >= 1 && !options.granted && !options.background) {
     const inLine = await agentLineRank(tx, message.orgId, agentId);
     // Work a person asked for lately never waits behind the agent's own chatter.
@@ -211,6 +219,7 @@ export async function startOrJoinRun(
           trigger,
           look: options.park,
           since: options.parkedSince ?? Date.now(),
+          ...(options.source ? { source: options.source } : {}),
         },
         dedupeKey: `${INBOX_JOB}:${agentId}:${message.id}:${options.park}`,
         runAt: new Date(Date.now() + INBOX_LOOK_MS),
@@ -261,7 +270,7 @@ export async function startOrJoinRun(
 export async function deliverParked(
   db: Database,
   orgId: string,
-  input: { messageId: string; agentId: string; trigger: RunTrigger; look: number; since?: number },
+  input: { messageId: string; agentId: string; trigger: RunTrigger; look: number; since?: number; source?: WakeSource },
 ) {
   const message = await getMessage(db, orgId, input.messageId);
   if (!message || message.deletedAt) return;
@@ -280,6 +289,7 @@ export async function deliverParked(
     const out = await startOrJoinRun(tx, message, input.agentId, input.trigger, {
       park: input.look + 1,
       parkedSince: input.since ?? Date.now(),
+      ...(input.source ? { source: input.source } : {}),
     });
     await takeConsultation(
       tx,
@@ -556,7 +566,7 @@ export const requesterOf = (db: Executor, message: Pick<Message, "orgId" | "id">
  * Whom a mention acts for: an agent asking another one acts for the person behind its run, who must be allowed to
  * talk to it; a routine wakes only agents its creator can talk to.
  */
-async function mentionRequester(db: Executor, message: Message) {
+export async function mentionRequester(db: Executor, message: Message) {
   const behind = message.agentRunId ?? (await routinePostRun(db, message));
   return (
     (await requesterOf(db, message)) ??
@@ -594,7 +604,7 @@ export async function dispatchMentions(
       message,
       eligible.map((a) => a.id),
       "mention",
-      message.authorAgentId ? { park: 1 } : {},
+      message.authorAgentId ? { park: 1, source: "agent_mention" } : { source: "person" },
     ),
   );
   const woken = new Set(eligible.map((a) => a.id));
@@ -637,6 +647,6 @@ export async function dispatchDm(
     { requesterUserId: message.authorUserId },
   );
   const agentIds = allowed.map((a) => a.id);
-  const runs = await db.transaction((tx) => createAgentRuns(tx, message, agentIds, "dm"));
+  const runs = await db.transaction((tx) => createAgentRuns(tx, message, agentIds, "dm", { source: "person" }));
   return { runs, agentIds };
 }

@@ -345,6 +345,8 @@ export * from "./vault/tools";
 export * from "./voice";
 export * from "./waiting";
 export * from "./waitlist";
+export * from "./wake-controls";
+export * from "./wake-words";
 export * from "./web-push";
 export * from "./web-tools";
 export * from "./webhooks";

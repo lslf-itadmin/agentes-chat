@@ -39,6 +39,7 @@ import { AGENT_CHIME_IN_MAX_HOP, getMessage, type Message, type ReplyRef } from 
 import { ACTIVE_RUN_STATUSES } from "./run-inbox";
 import { type AgentRun, KEPT_ON_HOLD, NO_AI } from "./runs";
 import { billingHold, OrgDeletingError, standingRefusal } from "./standing";
+import { wakeOpenSql } from "./wake-controls";
 import { isPersonalWorkspace } from "./workspace-mode";
 
 const {
@@ -833,6 +834,8 @@ export async function routeMessage(
         // Held (`standing.ts`): the others answer instead.
         isNull(agents.operatorHoldAt),
         eq(channelMembers.autoReply, true),
+        // Its wake controls: off, or messages that name nobody switched off for it (`wake-controls.ts`).
+        wakeOpenSql(sql`${agents.autonomyBrakes}`, "wakeRouter"),
         // Never the agent that wrote it.
         byAgent && message.authorAgentId ? ne(agents.id, message.authorAgentId) : undefined,
         // Never an agent this person can't talk to: not as a pick, not as "the last agent" of a follow-up.
@@ -1602,7 +1605,10 @@ export async function routeMessage(
       .onConflictDoNothing()
       .returning({ id: routingDecisions.id });
     if (!decision) return null; // another worker routed it first
-    return createAgentRuns(tx, message, chosen, "router", { joinChannelRun: message.authorType === "person" });
+    return createAgentRuns(tx, message, chosen, "router", {
+      joinChannelRun: message.authorType === "person",
+      source: "router",
+    });
   });
   if (!runs) return { runs: [], skipped: "already_routed" };
   const reacted = chosen.length === 0 ? await reactToSocial(decided, heldBack ? (only ?? null) : null) : undefined;
