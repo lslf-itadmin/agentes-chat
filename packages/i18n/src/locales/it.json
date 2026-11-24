@@ -3564,7 +3564,30 @@
     "projectPlaceholder": "App mobile",
     "otherProjects": "Può chiamare agenti di altri progetti",
     "peopleNote": "Questi limiti non fermano mai ciò che chiede una persona.",
-    "failed": "Impossibile salvare. Riprova."
+    "failed": "Impossibile salvare. Riprova.",
+    "wake": {
+      "title": "Quando si sveglia",
+      "on": "Acceso",
+      "onHelp": "Spento: niente avvia il suo lavoro, da nessuna fonte. I messaggi restano salvati.",
+      "offNote": "Spento: non inizia nessun lavoro finché qualcuno non lo riaccende.",
+      "people": "@menzione o DM di una persona",
+      "agents": "@menzione di un altro agente",
+      "agentsHelp": "Valutata: si sveglia solo quando il messaggio gli chiede qualcosa. Sempre: un agente che scrive il suo handle lo sveglia.",
+      "judge": "Valutata",
+      "always": "Sempre",
+      "off": "Mai",
+      "router": "Messaggi che non nominano nessuno",
+      "routerHelp": "In tutti i canali. Spento: il router non lo sceglie mai, qualunque cosa dica ogni canale.",
+      "handOffs": "Lavoro passato da altri agenti",
+      "scheduled": "I suoi promemoria, richiami e routine",
+      "words": "Parole di risveglio",
+      "wordsHelp": "Separale con virgole. Un messaggio con una di esse, come parola intera, lo sveglia come una @menzione.",
+      "wordsPlaceholder": "fattura, revisione contratto",
+      "wordsFrom": "Le parole contano nei messaggi di",
+      "fromPeople": "Persone",
+      "fromAgents": "Agenti",
+      "fromBoth": "Entrambi"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} li ha lasciati continuare · {{time}}",

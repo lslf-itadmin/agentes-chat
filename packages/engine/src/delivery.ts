@@ -5,6 +5,7 @@ import { publishChannelEvent, publishMessageCreated } from "./events";
 import { insertMessage, type Message, messageView } from "./messages";
 import { type Notice, SELF_REPORT_NOTICES } from "./notices";
 import { type AgentRun, replyThreadOf } from "./runs";
+import type { WakeSource } from "./wake-controls";
 
 export interface DeliverNoticeInput {
   orgId: string;
@@ -24,7 +25,16 @@ export interface DeliverNoticeInput {
   trigger?: RunTrigger;
   /** It relays what a run read outside (`meta.readOutside`, ADR 0117). */
   readOutside?: boolean;
+  /** Where the wake comes from (`wake-controls.ts`); absent: read from the notice's kind (`noticeWakeSource`). */
+  source?: WakeSource;
 }
+
+/**
+ * The wake source of a notice: its own follow-up is a scheduled wake, a routine's report handed to it a hand-off; any
+ * other notice (a result coming back, an event it watches) is held by the on/off switch alone.
+ */
+export const noticeWakeSource = (kind: string): WakeSource =>
+  kind === "follow_up" ? "scheduled" : kind === "routine_handoff" ? "hand_off" : "other";
 
 /**
  * The one way an event reaches an agent's conversation: a notice message
@@ -48,7 +58,11 @@ export async function deliverNotice(
     meta: { notice: input.notice, ...(input.readOutside ? { readOutside: true } : {}) },
   });
   const wake = input.wake !== false && !SELF_REPORT_NOTICES.includes(input.notice.kind);
-  const runs = wake ? await createAgentRuns(tx, message, [input.agentId], input.trigger ?? "mention") : [];
+  const runs = wake
+    ? await createAgentRuns(tx, message, [input.agentId], input.trigger ?? "mention", {
+        source: input.source ?? noticeWakeSource(input.notice.kind),
+      })
+    : [];
   return { message, runs };
 }
 

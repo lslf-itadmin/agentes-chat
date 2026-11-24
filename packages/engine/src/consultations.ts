@@ -21,6 +21,7 @@ import { currentHandles } from "./agents";
 import { type AiStatusDeps, agentAiState } from "./ai-status";
 import { canTalkTo, speakerFor, viaAgent } from "./audience";
 import { runAuthorityById } from "./authority";
+import { autonomySettings } from "./autonomy-settings";
 import { routineBriefOfRun } from "./background";
 import { type BrakeOutcome, brakeWakes, callableAgents, LATER_JOB, notCallableText } from "./brakes";
 import { canceledBy, stopRun } from "./cancel";
@@ -46,6 +47,7 @@ import { noAgentText } from "./team";
 import type { ToolContext, ToolDefinition, ToolOutput, ToolSource } from "./tools/types";
 import { untrustedBlock } from "./untrusted";
 import { USAGE_WAIT_CODES } from "./usage-pause";
+import { logWithheld, wakeRefusal } from "./wake-controls";
 import { inWorkspaceWords } from "./workspace-mode";
 
 const { agentConsultations, agentRuns, agents, channels, machines, messages, outbox, users } = schema;
@@ -113,6 +115,19 @@ async function reachableAgent(ctx: ToolContext, input: unknown, ai?: AiCheck, pu
   // Who this agent may call at all (ADR 0131 §8): its own settings, before anyone's audience.
   if (!(await callableAgents(db, ctx.orgId, ctx.agentId, [target.id])).has(target.id))
     return { refused: refuse(notCallableText([`@${handle}`])) };
+  // Its wake controls (`wake-controls.ts`): switched off, or taking no hand-offs from agents. Said before anything is
+  // written, so the asker doesn't wait on an answer that can't come.
+  const wakeOff = wakeRefusal(autonomySettings(target.autonomyBrakes), "hand_off");
+  if (wakeOff) {
+    logWithheld(target.id, "hand_off", null, wakeOff);
+    return {
+      refused: refuse(
+        wakeOff === "off"
+          ? `@${handle} is switched off: it starts no work until a person turns it back on. Tell the person you are helping.`
+          : `@${handle} doesn't take hand-offs from other agents (a person switched them off). Tell the person you are helping.`,
+      ),
+    };
+  }
   const behind = await personBehindCall(ctx);
   const routine = behind ? null : await actingRoutineOfCall(ctx);
   const person = behind ?? routine?.creatorUserId ?? null;
@@ -235,7 +250,7 @@ export function createAskAgentToolSource(
         });
         // A run of the consulted agent still active in this DM for the same person reads the question at
         // its next step: the consultation waits on that run then. Another person's run never takes it.
-        const started = await startOrJoinRun(tx, message, target.id, "dm", { park: 1 });
+        const started = await startOrJoinRun(tx, message, target.id, "dm", { park: 1, source: "hand_off" });
         const targetRunId = started ? ("created" in started ? started.created.id : started.joined) : null;
         const [row] = await tx
           .insert(agentConsultations)
@@ -461,7 +476,7 @@ const HELD_WORDS: Record<Exclude<BrakeOutcome, "later" | "digest">, string> = {
  */
 export async function startNoteRun(db: Database, message: Message, targetAgentId: string) {
   return db.transaction(async (tx) => {
-    const started = await startOrJoinRun(tx, message, targetAgentId, "dm", { park: 1 });
+    const started = await startOrJoinRun(tx, message, targetAgentId, "dm", { park: 1, source: "hand_off" });
     const runId = started ? ("created" in started ? started.created.id : started.joined) : null;
     if (runId)
       await tx
@@ -523,7 +538,9 @@ export async function sendNote(
       },
     });
     // A run of the other agent at work in this DM for the same person takes it: the row waits on that run.
-    const started = input.deferStart ? null : await startOrJoinRun(tx, message, input.targetAgentId, "dm", { park: 1 });
+    const started = input.deferStart
+      ? null
+      : await startOrJoinRun(tx, message, input.targetAgentId, "dm", { park: 1, source: "hand_off" });
     // A mention's copy that run already answers an open note of this chain for: no row of its own, so what comes of
     // both goes back once (ADR 0032 "Calm wakes").
     if (input.fromMention && started && "joined" in started) {

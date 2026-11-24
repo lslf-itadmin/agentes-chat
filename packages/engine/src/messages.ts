@@ -51,6 +51,7 @@ import { accountInUse, closedRefusal } from "./standing";
 import { afterSteered } from "./steering";
 import type { Talker } from "./talker";
 import { admitTaskAgents, taskAgentSql, taskReaderSql } from "./task-access";
+import { logWithheld, wakeOpenSql, wakeRefusalOf } from "./wake-controls";
 import { WEB_USAGE_PROVIDER } from "./web-tools";
 import { syncWikiLinks, withWikiLinks } from "./wiki-links";
 import { type WorkView, workViews } from "./works";
@@ -637,6 +638,8 @@ interface RawMessage {
   answered?: { id: string | null; agentId: string } | string | null;
   /** The reply reopened a closed thread. */
   reopened?: boolean | null;
+  /** Agents addressed whose wake controls started no run (`wake-controls.ts`). */
+  withheld?: string[] | string | null;
 }
 
 async function isThreadArchived(db: Executor, orgId: string, rootId: string) {
@@ -1037,6 +1040,13 @@ export async function insertMessageWithRuns(
           and t.org_id = ${input.orgId}::uuid
           and t.root_message_id = ${threadId}::uuid and t.state = 'closed' and exists (select 1 from m)
         returning t.id
+      ), withheld as (
+        -- Its wake controls (wake-controls.ts): an agent switched off, or off for people's messages, starts no run;
+        -- the message stays. Logged after the statement.
+        select wh.agent_id from (select agent_id from answering union select agent_id from held) wh
+        join ${agents} wa on wa.id = wh.agent_id
+        where exists (select 1 from m) and wh.agent_id not in (select agent_id from steered)
+          and not ${wakeOpenSql(sql`wa.autonomy_brakes`, "wakePeople")}
       ), runs as (
         insert into ${agentRuns} (id, org_id, agent_id, channel_id, thread_root_id, trigger_message_id, trigger, hop,
           stretch_id)
@@ -1046,6 +1056,7 @@ export async function insertMessageWithRuns(
           union select agent_id, 'mention' from held where agent_id not in (select agent_id from answering)) an
         where exists (select 1 from m)
           and an.agent_id not in (select agent_id from steered)
+          and an.agent_id not in (select agent_id from withheld)
         on conflict do nothing
         returning id, agent_id
       ), jobs as (
@@ -1095,6 +1106,7 @@ export async function insertMessageWithRuns(
         coalesce((select json_agg(json_build_object('id', s.id, 'agentId', s.agent_id)) from steered s), '[]'::json)
           as steered,
         (select json_build_object('id', an.run_id, 'agentId', an.agent_id) from answered an limit 1) as answered,
+        coalesce((select json_agg(w.agent_id) from withheld w), '[]'::json) as withheld,
         (select count(*) from jobs)::int as jobs,
         exists (select 1 from reopened) as reopened
       from m`),
@@ -1137,6 +1149,10 @@ export async function insertMessageWithRuns(
   // `[[…]]` links become backlinks of the pages they name (ADR 0023).
   if (body.includes("[[")) {
     await syncWikiLinks(tx, input.orgId, { type: "message", id: message.id, channelId: input.channelId }, body);
+  }
+  for (const agent of parseJson(row.withheld ?? null, [] as string[])) {
+    const why = await wakeRefusalOf(tx, agent, "person");
+    if (why) logWithheld(agent, "person", message.id, why);
   }
   return {
     message,

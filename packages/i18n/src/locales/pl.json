@@ -3678,7 +3678,30 @@
     "projectPlaceholder": "Aplikacja mobilna",
     "otherProjects": "Może wołać agentów z innych projektów",
     "peopleNote": "Te limity nigdy nie wstrzymują tego, o co prosi osoba.",
-    "failed": "Nie udało się zapisać. Spróbuj ponownie."
+    "failed": "Nie udało się zapisać. Spróbuj ponownie.",
+    "wake": {
+      "title": "Kiedy się budzi",
+      "on": "Włączony",
+      "onHelp": "Wyłączony: nic nie uruchamia jego pracy, z żadnego źródła. Wiadomości są nadal zachowywane.",
+      "offNote": "Wyłączony: nie zaczyna żadnej pracy, dopóki ktoś go nie włączy.",
+      "people": "@wzmianka lub DM od osoby",
+      "agents": "@wzmianka od innego agenta",
+      "agentsHelp": "Oceniana: budzi się tylko, gdy wiadomość o coś go prosi. Zawsze: agent, który napisze jego uchwyt, budzi go.",
+      "judge": "Oceniana",
+      "always": "Zawsze",
+      "off": "Nigdy",
+      "router": "Wiadomości, które nikogo nie wskazują",
+      "routerHelp": "We wszystkich kanałach. Wyłączone: router nigdy go nie wybiera, niezależnie od ustawień kanału.",
+      "handOffs": "Praca przekazana przez innych agentów",
+      "scheduled": "Jego własne przypomnienia, kontrole i rutyny",
+      "words": "Słowa budzące",
+      "wordsHelp": "Oddziel je przecinkami. Wiadomość z jednym z nich, jako całym słowem, budzi go jak @wzmianka.",
+      "wordsPlaceholder": "faktura, przegląd umowy",
+      "wordsFrom": "Słowa liczą się w wiadomościach od",
+      "fromPeople": "Osób",
+      "fromAgents": "Agentów",
+      "fromBoth": "Obu"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} pozwala im kontynuować · {{time}}",

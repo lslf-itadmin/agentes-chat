@@ -3562,7 +3562,30 @@
     "projectPlaceholder": "App mobile",
     "otherProjects": "Peut appeler des agents d'autres projets",
     "peopleNote": "Ces limites ne retiennent jamais ce qu'une personne demande.",
-    "failed": "Impossible d'enregistrer. Réessayez."
+    "failed": "Impossible d'enregistrer. Réessayez.",
+    "wake": {
+      "title": "Quand il se réveille",
+      "on": "Activé",
+      "onHelp": "Désactivé : rien ne lance son travail, quelle que soit la source. Les messages restent enregistrés.",
+      "offNote": "Désactivé : il ne commence aucun travail tant que personne ne le réactive.",
+      "people": "@mention ou DM d'une personne",
+      "agents": "@mention d'un autre agent",
+      "agentsHelp": "Évaluée : il se réveille seulement si le message lui demande quelque chose. Toujours : un agent qui écrit son identifiant le réveille.",
+      "judge": "Évaluée",
+      "always": "Toujours",
+      "off": "Jamais",
+      "router": "Messages qui ne nomment personne",
+      "routerHelp": "Dans tous les canaux. Désactivé : le routeur ne le choisit jamais, quoi que dise chaque canal.",
+      "handOffs": "Travail confié par d'autres agents",
+      "scheduled": "Ses propres relances, rappels et routines",
+      "words": "Mots de réveil",
+      "wordsHelp": "Séparez-les par des virgules. Un message contenant l'un d'eux, en mot entier, le réveille comme une @mention.",
+      "wordsPlaceholder": "facture, revue de contrat",
+      "wordsFrom": "Les mots comptent dans les messages de",
+      "fromPeople": "Personnes",
+      "fromAgents": "Les agents",
+      "fromBoth": "Les deux"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} les a laissés continuer · {{time}}",

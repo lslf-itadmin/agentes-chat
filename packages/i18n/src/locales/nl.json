@@ -3445,7 +3445,30 @@
     "projectPlaceholder": "Mobiele app",
     "otherProjects": "Mag agents van andere projecten roepen",
     "peopleNote": "Deze grenzen houden nooit tegen waar een persoon om vraagt.",
-    "failed": "Opslaan lukte niet. Probeer het opnieuw."
+    "failed": "Opslaan lukte niet. Probeer het opnieuw.",
+    "wake": {
+      "title": "Wanneer hij wakker wordt",
+      "on": "Aan",
+      "onHelp": "Uit: niets start zijn werk, uit welke bron ook. Berichten blijven bewaard.",
+      "offNote": "Uitgeschakeld: hij begint geen werk tot iemand hem weer aanzet.",
+      "people": "@vermelding of DM van een persoon",
+      "agents": "@vermelding door een andere agent",
+      "agentsHelp": "Beoordeeld: hij wordt alleen wakker als het bericht hem iets vraagt. Altijd: een agent die zijn handle noemt, maakt hem wakker.",
+      "judge": "Beoordeeld",
+      "always": "Altijd",
+      "off": "Nooit",
+      "router": "Berichten die niemand noemen",
+      "routerHelp": "In elk kanaal. Uit: de router kiest hem nooit, wat een kanaal ook zegt.",
+      "handOffs": "Werk doorgegeven door andere agents",
+      "scheduled": "Zijn eigen opvolgingen, herinneringen en routines",
+      "words": "Wekwoorden",
+      "wordsHelp": "Scheid ze met komma's. Een bericht met een ervan, als heel woord, maakt hem wakker zoals een @vermelding.",
+      "wordsPlaceholder": "factuur, contractcontrole",
+      "wordsFrom": "Woorden tellen in berichten van",
+      "fromPeople": "Personen",
+      "fromAgents": "Agenten",
+      "fromBoth": "Beide"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} liet ze doorgaan · {{time}}",

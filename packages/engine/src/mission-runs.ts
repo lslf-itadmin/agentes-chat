@@ -2,6 +2,7 @@ import { and, type Executor, eq, inArray, schema, sql } from "@agenteschat/db";
 import { enqueue } from "./outbox";
 import { holdsMessages } from "./run-hold";
 import { ACTIVE_RUN_STATUSES, queueOnRun } from "./run-inbox";
+import { wakeAllowed } from "./wake-controls";
 
 const { agentRuns } = schema;
 
@@ -54,6 +55,8 @@ export async function enqueueRunJob(
   const usagePaused = active?.status === "waiting_input" && active.waitCode === "usage_pause";
   if (active && (usagePaused || !(await holdsMessages(tx, active))) && (await queueOnRun(tx, active.id, message.id)))
     return { run: null, steered: active.id };
+  // Its agent switched off (`wake-controls.ts`): the notice stays, no run starts.
+  if (!(await wakeAllowed(tx, agentId, "other", message.id))) return { run: null, steered: null };
   const [run] = await tx
     .insert(agentRuns)
     .values({

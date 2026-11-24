@@ -3326,7 +3326,30 @@
     "projectPlaceholder": "Aplikasi seluler",
     "otherProjects": "Boleh memanggil agen dari proyek lain",
     "peopleNote": "Batas ini tidak pernah menahan apa yang diminta seseorang.",
-    "failed": "Tidak bisa menyimpan. Coba lagi."
+    "failed": "Tidak bisa menyimpan. Coba lagi.",
+    "wake": {
+      "title": "Kapan ia bangun",
+      "on": "Aktif",
+      "onHelp": "Mati: tidak ada yang memulai kerjanya, dari sumber mana pun. Pesan tetap disimpan.",
+      "offNote": "Dimatikan: ia tidak memulai kerja sampai seseorang menyalakannya lagi.",
+      "people": "@sebutan atau DM dari seseorang",
+      "agents": "@sebutan dari agen lain",
+      "agentsHelp": "Dinilai: ia bangun hanya bila pesan meminta sesuatu darinya. Selalu: agen yang menulis handle-nya membangunkannya.",
+      "judge": "Dinilai",
+      "always": "Selalu",
+      "off": "Tidak pernah",
+      "router": "Pesan yang tidak menyebut siapa pun",
+      "routerHelp": "Di semua kanal. Mati: router tidak pernah memilihnya, apa pun pengaturan tiap kanal.",
+      "handOffs": "Kerja yang diserahkan agen lain",
+      "scheduled": "Tindak lanjut, pengingat, dan rutinitasnya sendiri",
+      "words": "Kata pembangun",
+      "wordsHelp": "Pisahkan dengan koma. Pesan yang memuat salah satunya, sebagai kata utuh, membangunkannya seperti @sebutan.",
+      "wordsPlaceholder": "faktur, tinjauan kontrak",
+      "wordsFrom": "Kata dihitung dalam pesan dari",
+      "fromPeople": "Orang",
+      "fromAgents": "Agen",
+      "fromBoth": "Keduanya"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} membiarkan mereka lanjut · {{time}}",

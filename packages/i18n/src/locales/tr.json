@@ -3431,7 +3431,30 @@
     "projectPlaceholder": "Mobil uygulama",
     "otherProjects": "Diğer projelerin ajanlarını çağırabilir",
     "peopleNote": "Bu sınırlar bir kişinin istediğini asla bekletmez.",
-    "failed": "Kaydedilemedi. Tekrar dene."
+    "failed": "Kaydedilemedi. Tekrar dene.",
+    "wake": {
+      "title": "Ne zaman uyanır",
+      "on": "Açık",
+      "onHelp": "Kapalı: hiçbir kaynak işini başlatmaz. Mesajlar yine saklanır.",
+      "offNote": "Kapalı: biri yeniden açana kadar hiçbir işe başlamaz.",
+      "people": "Bir kişinin @bahsetmesi veya DM'i",
+      "agents": "Başka bir ajanın @bahsetmesi",
+      "agentsHelp": "Değerlendirilir: yalnızca mesaj ondan bir şey isterse uyanır. Her zaman: tanıtıcısını yazan bir ajan onu uyandırır.",
+      "judge": "Değerlendirilir",
+      "always": "Her zaman",
+      "off": "Asla",
+      "router": "Kimseyi anmayan mesajlar",
+      "routerHelp": "Tüm kanallarda. Kapalı: kanallar ne derse desin yönlendirici onu asla seçmez.",
+      "handOffs": "Diğer ajanlardan devredilen işler",
+      "scheduled": "Kendi takipleri, hatırlatıcıları ve rutinleri",
+      "words": "Uyandırma sözcükleri",
+      "wordsHelp": "Virgülle ayırın. Bunlardan birini tam sözcük olarak içeren bir mesaj, onu @bahsetme gibi uyandırır.",
+      "wordsPlaceholder": "fatura, sözleşme incelemesi",
+      "wordsFrom": "Sözcükler şu kişilerin mesajlarında sayılır",
+      "fromPeople": "Kişiler",
+      "fromAgents": "Ajanlar",
+      "fromBoth": "İkisi de"
+    }
   },
   "stretchCard": {
     "continued": "{{name}} devam etmelerine izin verdi · {{time}}",
