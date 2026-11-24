@@ -32,5 +32,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Diagnostic (LJ, Nov 23): show Claude Code's full output so the API error behind the 1-second failures on
+          # issues #4 and #5 is visible. The log is public; remove this line once the cause is found.
+          show_full_output: "true"
           # restrict_untrusted_prs stays at its default (on): Codex P1 on PR #1. LJ's Nov 23 "false" applies to vcoo-a2a only.
           claude_args: "--model claude-opus-5-5 --max-turns 200 --allowedTools 'Bash(bun:*),Bash(bunx:*),Bash(docker:*)' --append-system-prompt 'This is the LSLF fork of Agentes. Follow the LSLF rules in AGENTS.md; where they conflict with CLAUDE.md, AGENTS.md wins.'"
