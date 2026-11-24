@@ -3483,7 +3483,11 @@
       "ruleKeepPosted": "Bei langer Arbeit ab und zu mit einer kurzen Zeile informieren",
       "ruleNoPromise": "Eine Runde nie mit einem Versprechen beenden: jetzt erledigen",
       "rulePlainWords": "In einfachen Alltagsworten schreiben",
-      "ruleContinue": "Eine laufende Unterhaltung fortführen, ohne Wiederholungen"
+      "ruleContinue": "Eine laufende Unterhaltung fortführen, ohne Wiederholungen",
+      "sandboxComments": "Kommentare zwischen Sandbox-Schritten",
+      "sandboxCommentsHelp": "Führt sein KI-Endpunkt innerhalb einer Antwort eine Code-Sandbox aus, kommt der Text zwischen den Schritten mit der Antwort. Nur Aktivität: Nur der Text nach dem letzten Schritt wird veröffentlicht, der frühere Text bleibt in der Aktivität.",
+      "sandboxPost": "Veröffentlichen",
+      "sandboxActivity": "Nur Aktivität"
     }
   },
   "stretchCard": {

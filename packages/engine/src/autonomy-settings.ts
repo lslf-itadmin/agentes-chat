@@ -66,6 +66,12 @@ export interface AutonomySettings {
   ruleNoPromise: boolean;
   rulePlainWords: boolean;
   ruleContinue: boolean;
+  /**
+   * Comments between sandbox steps (`sandbox-comments.ts`): on a reply whose endpoint ran its own tools inside the call
+   * (the blocks kept, Anthropic-style endpoints), `post` posts all of its text; `activity` posts only the text after
+   * the last of those steps and keeps the earlier text as activity, the way narration before Agentes' own tool calls is.
+   */
+  sandboxComments: "post" | "activity";
 }
 
 /**
@@ -101,6 +107,7 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   ruleNoPromise: true,
   rulePlainWords: true,
   ruleContinue: true,
+  sandboxComments: "post",
 };
 
 /** The bounds of the automatic move's limits a person may set (minutes of work, model calls). */
@@ -166,6 +173,7 @@ export function autonomySettings(raw: unknown): AutonomySettings {
     ruleNoPromise: r.ruleNoPromise !== false,
     rulePlainWords: r.rulePlainWords !== false,
     ruleContinue: r.ruleContinue !== false,
+    sandboxComments: r.sandboxComments === "activity" ? "activity" : "post",
   };
 }
 

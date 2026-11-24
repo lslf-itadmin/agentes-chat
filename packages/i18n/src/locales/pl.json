@@ -3719,7 +3719,11 @@
       "ruleKeepPosted": "Przy długiej pracy co jakiś czas dawać znać krótką linią",
       "ruleNoPromise": "Nigdy nie kończyć tury obietnicą: zrobić to teraz",
       "rulePlainWords": "Pisać prostymi, codziennymi słowami",
-      "ruleContinue": "Prowadzić jedną ciągłą rozmowę, bez powtórzeń"
+      "ruleContinue": "Prowadzić jedną ciągłą rozmowę, bez powtórzeń",
+      "sandboxComments": "Komentarze między krokami piaskownicy",
+      "sandboxCommentsHelp": "Gdy jego punkt końcowy AI uruchamia piaskownicę kodu w jednej odpowiedzi, tekst napisany między krokami przychodzi razem z odpowiedzią. Tylko aktywność: publikowany jest tylko tekst po ostatnim kroku, wcześniejszy tekst zostaje w aktywności.",
+      "sandboxPost": "Publikuj",
+      "sandboxActivity": "Tylko aktywność"
     }
   },
   "stretchCard": {

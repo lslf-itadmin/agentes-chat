@@ -3472,7 +3472,11 @@
       "ruleKeepPosted": "Uzun işte arada bir kısa bir satırla haber ver",
       "ruleNoPromise": "Turu asla bir sözle bitirme: şimdi yap",
       "rulePlainWords": "Gündelik, sade kelimelerle yaz",
-      "ruleContinue": "Tekrarlamadan tek bir sohbeti sürdür"
+      "ruleContinue": "Tekrarlamadan tek bir sohbeti sürdür",
+      "sandboxComments": "Sandbox adımları arasındaki yorumlar",
+      "sandboxCommentsHelp": "Yapay zekâ uç noktası tek bir yanıtın içinde kod sandbox'ı çalıştırdığında, adımlar arasında yazılan metin yanıtla birlikte gelir. Yalnızca etkinlik: sadece son adımdan sonraki metin paylaşılır, önceki metin etkinlikte kalır.",
+      "sandboxPost": "Paylaş",
+      "sandboxActivity": "Yalnızca etkinlik"
     }
   },
   "stretchCard": {

@@ -20,6 +20,11 @@ export interface FakeReply {
   toolUses?: { id?: string; name: string; input: Record<string, unknown> }[];
   /** Extra provider blocks to return (e.g. a fake thinking block), placed first. */
   opaque?: Record<string, unknown>[];
+  /**
+   * The reply's blocks exactly in this order, in place of those built from `chunks`, `opaque` and `toolUses` (a
+   * provider's own steps between its text, like a code sandbox run inside the call). `chunks` still stream.
+   */
+  content?: ContentBlock[];
   usage?: Partial<ModelUsage>;
   stopReason?: StopReason;
   /** Report a different answering model (simulates a server-side fallback). */
@@ -105,7 +110,7 @@ export function createFakeProvider(reply?: (request: ModelRequest, call: number)
           outputChars: text.length,
         });
       }
-      const content: ContentBlock[] = [
+      const content: ContentBlock[] = r.content ?? [
         ...(r.opaque ?? []).map((data) => ({ type: "opaque" as const, provider: "anthropic", data })),
         ...(text ? [{ type: "text" as const, text }] : []),
         ...(r.toolUses ?? []).map((t) => ({

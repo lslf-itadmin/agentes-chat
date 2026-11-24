@@ -3367,7 +3367,11 @@
       "ruleKeepPosted": "Dalam pekerjaan panjang, beri kabar singkat sesekali",
       "ruleNoPromise": "Jangan akhiri giliran dengan janji: kerjakan sekarang",
       "rulePlainWords": "Menulis dengan kata sehari-hari yang sederhana",
-      "ruleContinue": "Lanjutkan satu percakapan, tanpa mengulang"
+      "ruleContinue": "Lanjutkan satu percakapan, tanpa mengulang",
+      "sandboxComments": "Komentar di antara langkah sandbox",
+      "sandboxCommentsHelp": "Saat endpoint AI-nya menjalankan sandbox kode di dalam satu balasan, teks yang ditulis di antara langkah ikut masuk ke balasan. Hanya aktivitas: hanya teks setelah langkah terakhir yang diposting, teks sebelumnya tetap di aktivitas.",
+      "sandboxPost": "Posting",
+      "sandboxActivity": "Hanya aktivitas"
     }
   },
   "stretchCard": {

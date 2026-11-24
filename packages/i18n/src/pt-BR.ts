@@ -3670,6 +3670,11 @@ export const ptBR = {
       ruleNoPromise: "Nunca terminar o turno com uma promessa: fazer agora",
       rulePlainWords: "Escrever em palavras simples do dia a dia",
       ruleContinue: "Seguir uma só conversa, sem repetir",
+      sandboxComments: "Comentários entre passos do sandbox",
+      sandboxCommentsHelp:
+        "Quando o endpoint de IA roda um sandbox de código dentro de uma resposta, o texto escrito entre os passos chega junto com a resposta. Só atividade: publica apenas o texto depois do último passo, e o texto anterior fica na atividade.",
+      sandboxPost: "Publicar",
+      sandboxActivity: "Só atividade",
     },
     peopleNote: "Esses limites nunca seguram o que uma pessoa pede.",
     failed: "Não deu para salvar. Tente de novo.",

@@ -421,6 +421,10 @@ export const AgentBrakes = z
     ruleContinue: z.boolean().openapi({
       description: "Its instructions carry Agentes' line on carrying on one ongoing conversation. Default on.",
     }),
+    sandboxComments: z.enum(["post", "activity"]).openapi({
+      description:
+        "Text a reply writes between the steps its endpoint ran itself (a code sandbox inside one call): `post` posts all of it, `activity` posts only the text after the last step and keeps the earlier text as activity. Default `post`.",
+    }),
   })
   .openapi("AgentBrakes");
 

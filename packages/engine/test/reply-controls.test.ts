@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { eq, schema } from "@agenteschat/db";
-import { type ModelRequest, systemText, textOf } from "@agenteschat/providers";
+import { type ContentBlock, type ModelRequest, systemText, textOf } from "@agenteschat/providers";
 import {
   type AgentRun,
   AUTONOMY_DEFAULTS,
@@ -25,6 +25,7 @@ import {
   WORK_IN_BACKGROUND_LINE,
 } from "../src/context";
 import { decideTurnEnd, FOLLOW_THROUGH_OFF, type TurnEnd } from "../src/continuation";
+import { isServerToolBlock, postableText, splitAtServerTools } from "../src/sandbox-comments";
 import { type Fixture, setup } from "./fixtures";
 
 /**
@@ -342,5 +343,88 @@ describe("the built-in lines in its instructions", () => {
       expect(text).toContain("Finish what you start.");
       expect(text).toContain("After a person approves or answers what you waited on");
     }
+  });
+});
+
+describe("comments between sandbox steps", () => {
+  // A reply as an Anthropic-style endpoint returns it when its provider ran a code sandbox inside the call: the
+  // steps kept as opaque blocks between the text (`fromContentBlock` in packages/providers/src/anthropic.ts).
+  const step = (n: number): ContentBlock[] => [
+    {
+      type: "opaque",
+      provider: "custom",
+      data: { type: "server_tool_use", id: `srvtoolu_${n}`, name: "code_execution", input: { code: "print(1)" } },
+    },
+    {
+      type: "opaque",
+      provider: "custom",
+      data: { type: "code_execution_tool_result", tool_use_id: `srvtoolu_${n}`, content: { stdout: "1" } },
+    },
+  ];
+  const FIRST = "Vou ler a planilha primeiro.";
+  const SECOND = "Agora somo as colunas.";
+  const ANSWER = "O total do contrato é R$ 12.400.";
+  const sandboxed: ContentBlock[] = [
+    { type: "text", text: FIRST },
+    ...step(1),
+    { type: "text", text: SECOND },
+    ...step(2),
+    { type: "text", text: ANSWER },
+  ];
+
+  test("untouched, comments are posted (today's behaviour); only a stored `activity` changes it", () => {
+    expect(AUTONOMY_DEFAULTS.sandboxComments).toBe("post");
+    expect(autonomySettings({}).sandboxComments).toBe("post");
+    expect(autonomySettings({ sandboxComments: "hide" }).sandboxComments).toBe("post");
+    expect(autonomySettings({ sandboxComments: "activity" }).sandboxComments).toBe("activity");
+  });
+
+  test("server-tool blocks are told from thinking and from the agent's own tool calls", () => {
+    expect(step(1).every(isServerToolBlock)).toBe(true);
+    expect(isServerToolBlock({ type: "opaque", provider: "custom", data: { type: "thinking", thinking: "x" } })).toBe(
+      false,
+    );
+    expect(isServerToolBlock({ type: "tool_use", id: "t", name: "search_context", input: {} })).toBe(false);
+    expect(isServerToolBlock({ type: "text", text: "code_execution_tool_result" })).toBe(false);
+  });
+
+  test("split at the last sandbox step: the text before it and the text after it", () => {
+    expect(splitAtServerTools(sandboxed)).toEqual({ before: `${FIRST}${SECOND}`, after: ANSWER });
+    expect(splitAtServerTools([{ type: "text", text: ANSWER }])).toBeNull();
+    expect(postableText(sandboxed, "post")).toBe(`${FIRST}${SECOND}${ANSWER}`);
+    expect(postableText(sandboxed, "activity")).toBe(ANSWER);
+    // No sandbox step: the whole text either way.
+    expect(postableText([{ type: "text", text: ANSWER }], "activity")).toBe(ANSWER);
+  });
+
+  const runWith = async (brakes: Record<string, unknown>, content: ContentBlock[] = sandboxed) => {
+    f = await setup({ reply: () => ({ chunks: [textOf(content)], content }) });
+    if (Object.keys(brakes).length > 0) await setBrakes(f, brakes);
+    await ask(f, "@dev quanto dá o contrato?");
+    await drainOutbox(f.db, f.handlers);
+    const steps = await f.db.select().from(schema.agentRunSteps);
+    const narration = steps.flatMap((s) => (s.kind === "model_call" && s.data.narration ? [s.data.narration] : []));
+    return { posted: (await agentMessages(f)).map((m) => m.body), narration };
+  };
+
+  test("untouched: every comment is posted with the answer, as today", async () => {
+    const { posted, narration } = await runWith({});
+    expect(posted).toEqual([`${FIRST}${SECOND}${ANSWER}`]);
+    expect(narration).toEqual([]);
+  });
+
+  test("activity only: only the text after the last step is posted; the earlier text is the call's activity", async () => {
+    const { posted, narration } = await runWith({ sandboxComments: "activity" });
+    expect(posted).toEqual([ANSWER]);
+    expect(narration).toEqual([`${FIRST}${SECOND}`]);
+    // The model's history keeps every block as it came: the next call reads its own steps.
+    const [run] = await f.db.select().from(schema.agentRuns);
+    expect(run?.status).toBe("done");
+  });
+
+  test("activity only, a reply with no sandbox step is posted whole", async () => {
+    const { posted, narration } = await runWith({ sandboxComments: "activity" }, [{ type: "text", text: ANSWER }]);
+    expect(posted).toEqual([ANSWER]);
+    expect(narration).toEqual([]);
   });
 });

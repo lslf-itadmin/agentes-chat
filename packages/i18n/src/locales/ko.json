@@ -3355,7 +3355,11 @@
       "ruleKeepPosted": "긴 작업 중에는 가끔 짧은 한 줄로 알리기",
       "ruleNoPromise": "약속으로 턴을 끝내지 않기: 지금 하기",
       "rulePlainWords": "쉬운 일상 언어로 쓰기",
-      "ruleContinue": "반복하지 않고 하나의 대화로 이어가기"
+      "ruleContinue": "반복하지 않고 하나의 대화로 이어가기",
+      "sandboxComments": "샌드박스 단계 사이의 코멘트",
+      "sandboxCommentsHelp": "AI 엔드포인트가 한 답변 안에서 코드 샌드박스를 실행하면 단계 사이에 쓴 텍스트가 답변과 함께 도착합니다. 활동만: 마지막 단계 뒤의 텍스트만 게시하고, 그 앞의 텍스트는 활동에 남깁니다.",
+      "sandboxPost": "게시",
+      "sandboxActivity": "활동만"
     }
   },
   "stretchCard": {

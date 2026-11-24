@@ -3486,7 +3486,11 @@
       "ruleKeepPosted": "Bij lang werk af en toe met een korte regel laten weten hoe het gaat",
       "ruleNoPromise": "Een beurt nooit met een belofte eindigen: nu doen",
       "rulePlainWords": "In eenvoudige alledaagse woorden schrijven",
-      "ruleContinue": "Eén doorlopend gesprek voortzetten, zonder herhalen"
+      "ruleContinue": "Eén doorlopend gesprek voortzetten, zonder herhalen",
+      "sandboxComments": "Opmerkingen tussen sandboxstappen",
+      "sandboxCommentsHelp": "Als het AI-endpoint binnen één antwoord een codesandbox draait, komt de tekst tussen de stappen mee met het antwoord. Alleen activiteit: alleen de tekst na de laatste stap wordt geplaatst, de eerdere tekst blijft in de activiteit.",
+      "sandboxPost": "Plaatsen",
+      "sandboxActivity": "Alleen activiteit"
     }
   },
   "stretchCard": {

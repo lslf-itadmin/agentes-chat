@@ -3762,6 +3762,11 @@ export const en = {
       ruleNoPromise: "Never end a turn on a promise: do it now",
       rulePlainWords: "Write in plain everyday words",
       ruleContinue: "Carry on one ongoing conversation, without repeating",
+      sandboxComments: "Comments between sandbox steps",
+      sandboxCommentsHelp:
+        "When its AI endpoint runs a code sandbox inside one reply, the text written between the steps arrives with the reply. Activity only: just the text after the last step is posted, the earlier text stays in the activity.",
+      sandboxPost: "Post",
+      sandboxActivity: "Activity only",
     },
     peopleNote: "These limits never hold what a person asks for.",
     failed: "Couldn't save. Try again.",

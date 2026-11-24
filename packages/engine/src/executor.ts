@@ -332,6 +332,7 @@ import {
   transitionRun,
 } from "./runs";
 import { SANDBOX_SCOPE, truncateOutput } from "./sandbox";
+import { postableText, splitAtServerTools } from "./sandbox-comments";
 import { secretResult } from "./secrets";
 import { enabledSkills } from "./skills";
 import { type SpillRecord, spillMayHelp, spillPlan, spillTarget } from "./spill";
@@ -4946,8 +4947,13 @@ async function executeRunInner(
       // A computer brain's turn with nothing to say (its tools ran through the bridge) adds no empty message.
       if (result.content.length > 0) transcript.messages.push({ role: "assistant", content: result.content });
       // Text before tool calls is narration of the work: kept on the model call's step for its activity, never live.
-      const turnText = dropSquashedEcho(textOf(result.content).trim());
-      const narration = result.stopReason === "tool_use" && turnText ? turnText : "";
+      // Comments between sandbox steps (`sandbox-comments.ts`): with the agent's switch on `activity`, a reply whose
+      // endpoint ran its own tools inside the call posts only what came after the last of them; the rest is activity.
+      const sandboxSplit = replyControls.sandboxComments === "activity" ? splitAtServerTools(result.content) : null;
+      const turnText = dropSquashedEcho((sandboxSplit ? sandboxSplit.after : textOf(result.content)).trim());
+      const narration = [sandboxSplit?.before ?? "", result.stopReason === "tool_use" ? turnText : ""]
+        .filter(Boolean)
+        .join("\n\n");
       // The calls a computer turn ran itself (Codex's commands and edits, Claude Code's Bash, WebSearch…):
       // the report tells action from talk by them. Ours through the bridge have steps of their own.
       const ours = new Set(turnTools.map((t) => t.name));
@@ -5314,7 +5320,7 @@ async function executeRunInner(
         : words ||
           (updates.length > 0 ? updates.map(describeUpdate).join("\n") : "") ||
           saved ||
-          closingSummary(transcript, anythingPosted) ||
+          closingSummary(transcript, anythingPosted, replyControls.sandboxComments) ||
           (result.executedCount > 0 && !anythingPosted ? DONE_TEXT : "");
       // It changed something since its last message and wrote nothing more: its receipts still go out.
       let text = written || (!silent && anythingPosted && (await hasUnpostedReceipts(db, run)) ? DONE_TEXT : "");
@@ -5437,7 +5443,10 @@ async function executeRunInner(
         executed: transcript.executedCalls ?? 0,
         bound: t.stuck?.endAt !== undefined ? "stuck" : t.wrapUpNoted ? "step_limit" : null,
         quiet: silent && !judged,
-        decided: decided && !silent && !said && !capped && !closingSummary(t, true) ? decided : null,
+        decided:
+          decided && !silent && !said && !capped && !closingSummary(t, true, replyControls.sandboxComments)
+            ? decided
+            : null,
         unanswered: !silent && !viaRoutine && !words && (sentinelOnly || (!text && !anythingPosted)),
         unreached,
         judged: owesAnswer && !capped ? judged : "",
@@ -6136,10 +6145,11 @@ const hasToolUse = (m: Transcript["messages"][number]) =>
  * the last post ("Installed Go and built it."), else a plain "Done." when it
  * used tools, else nothing (an empty reply fails the run).
  */
-function closingSummary(t: Transcript, anythingPosted: boolean): string {
+function closingSummary(t: Transcript, anythingPosted: boolean, sandboxComments: "post" | "activity" = "post"): string {
   const turns = t.messages.slice(t.postedUpTo).filter((m) => m.role === "assistant");
+  // Text before the last step its endpoint ran itself is activity when the agent chose so (`sandbox-comments.ts`).
   const last = turns
-    .map((m) => stripSentinel(textOf(m.content)))
+    .map((m) => stripSentinel(postableText(m.content, sandboxComments)))
     .filter(Boolean)
     .at(-1);
   if (last) return last;

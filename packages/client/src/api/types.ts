@@ -920,6 +920,8 @@ export interface AgentBrakes {
   ruleNoPromise?: boolean;
   rulePlainWords?: boolean;
   ruleContinue?: boolean;
+  /** Text between the steps its endpoint ran itself (a code sandbox): posted, or kept as activity but the last part. */
+  sandboxComments?: "post" | "activity";
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -951,6 +953,7 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   ruleNoPromise: true,
   rulePlainWords: true,
   ruleContinue: true,
+  sandboxComments: "post",
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

@@ -36,7 +36,7 @@ const withValue = (list: string[], value: number) =>
  * work asks first, how many jobs at once, PRs an hour) and which agents it may call. Saved at once, outside the page's
  * save bar, by who manages agents; everyone else reads it. The defaults keep today's autonomy for normal use. Its last
  * section is when the agent wakes up: on/off and one switch per source of wakes (the server's `wake-controls.ts`); after
- * it, the switches over Agentes' own interventions in its replies (the follow-through judge, the move to background work) and its built-in lines in the agent's instructions.
+ * it, the switches over Agentes' own interventions in its replies (the follow-through judge, the move to background work, comments between sandbox steps) and its built-in lines in the agent's instructions.
  */
 export function BrakesCard() {
   const { t } = useTranslation();
@@ -363,6 +363,25 @@ export function BrakesCard() {
             checked={w.workCheckIns}
             disabled={!editable}
             onCheckedChange={(workCheckIns) => save({ workCheckIns })}
+          />
+        </SettingRow>
+        <SettingRow
+          title={t("brakes.replies.sandboxComments")}
+          hint={{
+            name: t("common.about", { label: t("brakes.replies.sandboxComments") }),
+            text: t("brakes.replies.sandboxCommentsHelp"),
+          }}
+        >
+          <Segmented
+            size="sm"
+            label={t("brakes.replies.sandboxComments")}
+            value={w.sandboxComments}
+            disabled={!editable}
+            onValueChange={(sandboxComments) => save({ sandboxComments })}
+            options={[
+              { value: "post", label: t("brakes.replies.sandboxPost") },
+              { value: "activity", label: t("brakes.replies.sandboxActivity") },
+            ]}
           />
         </SettingRow>
       </SettingsSection>

@@ -3357,7 +3357,11 @@
       "ruleKeepPosted": "長い作業ではときどき短い一行で知らせる",
       "ruleNoPromise": "約束でターンを終えない: 今やる",
       "rulePlainWords": "日常のやさしい言葉で書く",
-      "ruleContinue": "繰り返さず、ひとつの会話として続ける"
+      "ruleContinue": "繰り返さず、ひとつの会話として続ける",
+      "sandboxComments": "サンドボックスの手順の間のコメント",
+      "sandboxCommentsHelp": "AIエンドポイントが1つの返信の中でコードサンドボックスを実行すると、手順の間に書かれたテキストが返信と一緒に届きます。アクティビティのみ:最後の手順の後のテキストだけを投稿し、それより前のテキストはアクティビティに残します。",
+      "sandboxPost": "投稿する",
+      "sandboxActivity": "アクティビティのみ"
     }
   },
   "stretchCard": {

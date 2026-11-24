@@ -3605,7 +3605,11 @@
       "ruleKeepPosted": "Nel lavoro lungo, dare notizie con una breve riga ogni tanto",
       "ruleNoPromise": "Mai chiudere un turno con una promessa: farlo subito",
       "rulePlainWords": "Scrivere con parole semplici di tutti i giorni",
-      "ruleContinue": "Proseguire un'unica conversazione, senza ripetere"
+      "ruleContinue": "Proseguire un'unica conversazione, senza ripetere",
+      "sandboxComments": "Commenti tra i passi del sandbox",
+      "sandboxCommentsHelp": "Quando il suo endpoint di IA esegue un sandbox di codice dentro una risposta, il testo scritto tra i passi arriva con la risposta. Solo attività: viene pubblicato solo il testo dopo l'ultimo passo, il testo precedente resta nell'attività.",
+      "sandboxPost": "Pubblica",
+      "sandboxActivity": "Solo attività"
     }
   },
   "stretchCard": {

@@ -3360,7 +3360,11 @@
       "ruleKeepPosted": "长时间工作时，不时用一句话告知进展",
       "ruleNoPromise": "不要以承诺结束一轮：现在就做",
       "rulePlainWords": "用简单的日常用语写作",
-      "ruleContinue": "延续同一段对话，不重复"
+      "ruleContinue": "延续同一段对话，不重复",
+      "sandboxComments": "沙盒步骤之间的说明",
+      "sandboxCommentsHelp": "当它的 AI 端点在一次回复中运行代码沙盒时，步骤之间写的文字会随回复一起到达。仅活动：只发布最后一步之后的文字，之前的文字保留在活动中。",
+      "sandboxPost": "发布",
+      "sandboxActivity": "仅活动"
     }
   },
   "stretchCard": {
