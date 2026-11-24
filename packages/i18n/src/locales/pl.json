@@ -3701,6 +3701,11 @@
       "fromPeople": "Osób",
       "fromAgents": "Agentów",
       "fromBoth": "Obu"
+    },
+    "replies": {
+      "title": "Jak Agentes ingeruje w jego odpowiedzi",
+      "followThrough": "Sprawdzanie obietnic",
+      "followThroughHelp": "Po jego ostatniej odpowiedzi druga AI sprawdza, czy obiecał więcej pracy, i może dać mu do 3 dodatkowych tur. Wyłączone: bez sprawdzania i bez dodatkowych tur, odpowiedź jest publikowana tak, jak została napisana."
     }
   },
   "stretchCard": {

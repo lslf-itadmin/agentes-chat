@@ -3647,6 +3647,12 @@ export const ptBR = {
       fromAgents: "Agentes",
       fromBoth: "Os dois",
     },
+    replies: {
+      title: "Como o Agentes interfere nas respostas",
+      followThrough: "Verificação de promessas",
+      followThroughHelp:
+        "Depois da resposta final, uma segunda IA lê se ele prometeu mais trabalho e pode lhe dar até 3 turnos extras. Desligada: sem verificação e sem turnos extras, a resposta é publicada como foi escrita.",
+    },
     peopleNote: "Esses limites nunca seguram o que uma pessoa pede.",
     failed: "Não deu para salvar. Tente de novo.",
   },

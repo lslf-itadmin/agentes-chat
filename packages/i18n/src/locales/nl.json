@@ -3468,6 +3468,11 @@
       "fromPeople": "Personen",
       "fromAgents": "Agenten",
       "fromBoth": "Beide"
+    },
+    "replies": {
+      "title": "Hoe Agentes ingrijpt in zijn antwoorden",
+      "followThrough": "Controle op beloftes",
+      "followThroughHelp": "Na zijn laatste antwoord leest een tweede AI of hij meer werk beloofde en kan hem tot 3 extra beurten geven. Uit: geen controle en geen extra beurten, het antwoord wordt geplaatst zoals het is geschreven."
     }
   },
   "stretchCard": {

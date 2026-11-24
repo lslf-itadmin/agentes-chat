@@ -3580,6 +3580,11 @@
       "fromPeople": "Personas",
       "fromAgents": "Agentes",
       "fromBoth": "Ambos"
+    },
+    "replies": {
+      "title": "Cómo interviene Agentes en sus respuestas",
+      "followThrough": "Revisión de promesas",
+      "followThroughHelp": "Tras su respuesta final, una segunda IA lee si prometió más trabajo y puede darle hasta 3 turnos extra. Desactivada: sin revisión ni turnos extra, la respuesta se publica tal como se escribió."
     }
   },
   "stretchCard": {

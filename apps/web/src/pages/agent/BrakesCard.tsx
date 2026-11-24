@@ -25,7 +25,8 @@ const PRS = ["0", "1", "2", "3", "5", "10"];
  * Configurações → Autonomia sem pedido (ADR 0131): what the agent may start that nobody asked for directly (costly
  * work asks first, how many jobs at once, PRs an hour) and which agents it may call. Saved at once, outside the page's
  * save bar, by who manages agents; everyone else reads it. The defaults keep today's autonomy for normal use. Its last
- * section is when the agent wakes up: on/off and one switch per source of wakes (the server's `wake-controls.ts`).
+ * section is when the agent wakes up: on/off and one switch per source of wakes (the server's `wake-controls.ts`); after
+ * it, the switches over Agentes' own interventions in its replies (the follow-through judge).
  */
 export function BrakesCard() {
   const { t } = useTranslation();
@@ -276,6 +277,23 @@ export function BrakesCard() {
             />
           </SettingRow>
         )}
+      </SettingsSection>
+      <SettingsSection title={t("brakes.replies.title")}>
+        <SettingRow
+          title={t("brakes.replies.followThrough")}
+          hint={{
+            name: t("common.about", { label: t("brakes.replies.followThrough") }),
+            text: t("brakes.replies.followThroughHelp"),
+          }}
+          htmlFor="agp-replies-follow"
+        >
+          <Switch
+            id="agp-replies-follow"
+            checked={w.followThrough}
+            disabled={!editable}
+            onCheckedChange={(followThrough) => save({ followThrough })}
+          />
+        </SettingRow>
       </SettingsSection>
     </Card>
   );

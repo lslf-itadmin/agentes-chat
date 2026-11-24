@@ -3342,6 +3342,11 @@
       "fromPeople": "人",
       "fromAgents": "智能体",
       "fromBoth": "两者"
+    },
+    "replies": {
+      "title": "Agentes 如何介入它的回复",
+      "followThrough": "承诺检查",
+      "followThroughHelp": "在它给出最终回答后，第二个 AI 会判断它是否承诺了更多工作，并可能再给它最多 3 轮。关闭：不检查，也没有额外轮次，回复按原样发布。"
     }
   },
   "stretchCard": {

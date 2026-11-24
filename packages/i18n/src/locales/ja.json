@@ -3339,6 +3339,11 @@
       "fromPeople": "人",
       "fromAgents": "エージェント",
       "fromBoth": "両方"
+    },
+    "replies": {
+      "title": "Agentes が返信に介入する方法",
+      "followThrough": "約束のチェック",
+      "followThroughHelp": "最終回答のあと、別の AI がさらに作業を約束したかを読み取り、最大 3 回の追加ターンを与えることがあります。オフ: チェックも追加ターンもなく、返信は書かれたとおりに投稿されます。"
     }
   },
   "stretchCard": {

@@ -3337,6 +3337,11 @@
       "fromPeople": "사람",
       "fromAgents": "에이전트",
       "fromBoth": "둘 다"
+    },
+    "replies": {
+      "title": "Agentes가 답장에 개입하는 방식",
+      "followThrough": "약속 확인",
+      "followThroughHelp": "최종 답변 후 두 번째 AI가 추가 작업을 약속했는지 읽고 최대 3번의 추가 턴을 줄 수 있습니다. 끄면: 확인도 추가 턴도 없이 답장이 쓰인 그대로 게시됩니다."
     }
   },
   "stretchCard": {

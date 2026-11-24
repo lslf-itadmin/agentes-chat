@@ -3587,6 +3587,11 @@
       "fromPeople": "Persone",
       "fromAgents": "Agenti",
       "fromBoth": "Entrambi"
+    },
+    "replies": {
+      "title": "Come Agentes interviene nelle sue risposte",
+      "followThrough": "Controllo delle promesse",
+      "followThroughHelp": "Dopo la risposta finale, una seconda IA legge se ha promesso altro lavoro e può dargli fino a 3 turni in più. Disattivato: nessun controllo né turni in più, la risposta viene pubblicata così com'è."
     }
   },
   "stretchCard": {

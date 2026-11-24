@@ -3454,6 +3454,11 @@
       "fromPeople": "Kişiler",
       "fromAgents": "Ajanlar",
       "fromBoth": "İkisi de"
+    },
+    "replies": {
+      "title": "Agentes yanıtlarına nasıl müdahale eder",
+      "followThrough": "Söz kontrolü",
+      "followThroughHelp": "Son yanıtından sonra ikinci bir yapay zekâ daha fazla iş vaat edip etmediğini okur ve ona en fazla 3 ek tur verebilir. Kapalı: kontrol ve ek tur yok, yanıt yazıldığı gibi gönderilir."
     }
   },
   "stretchCard": {

@@ -40,6 +40,11 @@ export interface AutonomySettings {
   wakeScheduled: boolean;
   wakeWords: string[];
   wakeWordsFrom: "people" | "agents" | "both";
+  /**
+   * Agentes' own interventions in its replies. `followThrough` false: no follow-through judge after its final answer
+   * and no extra or nudge turns from the turn-end controller (`decideTurnEnd`); the reply is posted as written.
+   */
+  followThrough: boolean;
 }
 
 /**
@@ -65,6 +70,7 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   wakeScheduled: true,
   wakeWords: [],
   wakeWordsFrom: "people",
+  followThrough: true,
 };
 
 /** Wake words a list holds at most, and the length of each (`wake-controls.ts`). */
@@ -116,6 +122,7 @@ export function autonomySettings(raw: unknown): AutonomySettings {
     wakeScheduled: r.wakeScheduled !== false,
     wakeWords: words(r.wakeWords),
     wakeWordsFrom: r.wakeWordsFrom === "agents" || r.wakeWordsFrom === "both" ? r.wakeWordsFrom : "people",
+    followThrough: r.followThrough !== false,
   };
 }
 

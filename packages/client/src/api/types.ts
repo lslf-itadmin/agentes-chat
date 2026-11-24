@@ -904,6 +904,11 @@ export interface AgentBrakes {
   wakeScheduled?: boolean;
   wakeWords?: string[];
   wakeWordsFrom?: "people" | "agents" | "both";
+  /**
+   * Agentes' own interventions in its replies; absent from a server without them (the defaults). `followThrough`
+   * false: no judge after its final answer and no extra turns, the reply posted as written.
+   */
+  followThrough?: boolean;
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -925,6 +930,7 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   wakeScheduled: true,
   wakeWords: [],
   wakeWordsFrom: "people",
+  followThrough: true,
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

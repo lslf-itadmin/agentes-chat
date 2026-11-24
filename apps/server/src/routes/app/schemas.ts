@@ -383,6 +383,10 @@ export const AgentBrakes = z
     wakeWordsFrom: z.enum(["people", "agents", "both"]).openapi({
       description: "Whose messages its wake words count in. Default `people`.",
     }),
+    followThrough: z.boolean().openapi({
+      description:
+        "After its final answer a judge reads whether it promised more and may give it extra turns; off: no judge and no extra turns, the reply is posted as written. Default on.",
+    }),
   })
   .openapi("AgentBrakes");
 

@@ -3741,6 +3741,12 @@ export const en = {
       fromAgents: "Agents",
       fromBoth: "Both",
     },
+    replies: {
+      title: "How Agentes steps into its replies",
+      followThrough: "Follow-through check",
+      followThroughHelp:
+        "After its final answer, a second AI reads whether it promised more work and can give it up to 3 extra turns. Off: no check and no extra turns, the reply is posted as written.",
+    },
     peopleNote: "These limits never hold what a person asks for.",
     failed: "Couldn't save. Try again.",
   },

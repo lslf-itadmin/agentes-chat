@@ -3465,6 +3465,11 @@
       "fromPeople": "Personen",
       "fromAgents": "Agenten",
       "fromBoth": "Beiden"
+    },
+    "replies": {
+      "title": "Wie Agentes in seine Antworten eingreift",
+      "followThrough": "Prüfung auf Zusagen",
+      "followThroughHelp": "Nach seiner letzten Antwort liest eine zweite KI, ob es weitere Arbeit versprochen hat, und kann ihm bis zu 3 zusätzliche Runden geben. Aus: keine Prüfung, keine zusätzlichen Runden, die Antwort wird so veröffentlicht, wie sie geschrieben wurde."
     }
   },
   "stretchCard": {

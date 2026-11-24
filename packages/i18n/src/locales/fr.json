@@ -3585,6 +3585,11 @@
       "fromPeople": "Personnes",
       "fromAgents": "Les agents",
       "fromBoth": "Les deux"
+    },
+    "replies": {
+      "title": "Comment Agentes intervient dans ses réponses",
+      "followThrough": "Vérification des promesses",
+      "followThroughHelp": "Après sa réponse finale, une seconde IA vérifie s'il a promis plus de travail et peut lui donner jusqu'à 3 tours de plus. Désactivée : pas de vérification ni de tours en plus, la réponse est publiée telle qu'écrite."
     }
   },
   "stretchCard": {

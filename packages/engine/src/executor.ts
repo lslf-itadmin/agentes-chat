@@ -62,6 +62,7 @@ import {
   orgAutoModels,
   withAuto,
 } from "./auto-model";
+import { autonomySettings } from "./autonomy-settings";
 import type { BlockSpecReader } from "./block-state";
 import { ASK_CHOICES_TOOL, SHOW_BLOCK_TOOL, someoneAnswers } from "./blocks";
 import { brainOf } from "./brain-settings";
@@ -1751,6 +1752,8 @@ async function executeRunInner(
     stored && isRightHand(stored)
       ? (await withPersonalBrain(db, stored, await rightHandPerson(db, stored, run))).agent
       : stored;
+  /** Its switches over Agentes' own interventions in its replies (stored with its autonomy brakes). */
+  const replyControls = autonomySettings(agent?.autonomyBrakes);
   // Claude Code defers our tools itself (its ToolSearch): a new run lists every tool the agent has, the same in every
   // run, instead of the groups a judge picks, so its cached prefix holds across runs and sessions (ADR 0043).
   if (needsContext && deps.toolsOnDemand && agent && brainOf(agent.brain) === "claude_code") {
@@ -5227,6 +5230,7 @@ async function executeRunInner(
                 })
             : null,
           evidence: judging.evidence,
+          followThrough: replyControls.followThrough,
         });
         transcript.continuation = advanceContinuation(state, decision, transcript.executedCalls ?? 0);
         const { nudge, ...recorded } = { ...decision, count: transcript.continuation.count };
@@ -5451,6 +5455,7 @@ async function executeRunInner(
               })
           : null,
         evidence: judging.evidence,
+        followThrough: replyControls.followThrough,
       });
       // A card holds a question: a reply with no question mark asks nothing (the card has no choices), so it is its
       // answer and nobody waits on it. One that only repeats its last message word for word, with nothing else to
