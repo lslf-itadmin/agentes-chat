@@ -20,6 +20,7 @@ import { type AgentRun, NO_AI, replyThreadOf } from "./runs";
 import { assertCanWork, billingHold } from "./standing";
 import { continueStretch, stretchCardOf } from "./stretch";
 import { continueUsagePause, usagePauseCardOf } from "./usage-pause";
+import { wakeAllowed } from "./wake-controls";
 import { withWikiLinks } from "./wiki-links";
 
 const { agentRunSteps, agentRuns, agents, messages, routingDecisions } = schema;
@@ -256,6 +257,8 @@ async function restartFailedRun(deps: AnswerNowDeps, userId: string, failed: Age
   // A failed run gets no more steps, so this still holds in the transaction below.
   if (await didWork(deps.db, failed.id)) return "worked" as const;
   const started = await deps.db.transaction(async (tx) => {
+    // Its agent switched off (`wake-controls.ts`): nothing starts, and the failed run stays as it was.
+    if (!(await wakeAllowed(tx, failed.agentId, "other", trigger.id))) return null;
     const [gone] = await tx
       .delete(agentRuns)
       .where(and(eq(agentRuns.id, failed.id), eq(agentRuns.status, "failed")))
