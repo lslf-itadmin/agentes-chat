@@ -3353,7 +3353,14 @@
     "replies": {
       "title": "Cara Agentes ikut campur dalam balasannya",
       "followThrough": "Pemeriksaan janji",
-      "followThroughHelp": "Setelah jawaban akhirnya, AI kedua membaca apakah ia menjanjikan pekerjaan lain dan dapat memberinya hingga 3 giliran tambahan. Mati: tanpa pemeriksaan dan tanpa giliran tambahan, balasan dikirim apa adanya."
+      "followThroughHelp": "Setelah jawaban akhirnya, AI kedua membaca apakah ia menjanjikan pekerjaan lain dan dapat memberinya hingga 3 giliran tambahan. Mati: tanpa pemeriksaan dan tanpa giliran tambahan, balasan dikirim apa adanya.",
+      "workMove": "Pindahkan pekerjaan panjang ke latar belakang",
+      "workMoveHelp": "Permintaan panjang keluar dari percakapan menjadi pekerjaan latar belakang, dengan sendirinya atau atas pilihan agen. Mati: tetap di percakapan.",
+      "workMoveAfterMin": "Pindahkan setelah (menit)",
+      "workMoveAfterCalls": "Atau setelah (panggilan AI)",
+      "workMoveAfterCallsHelp": "Dihitung hanya setelah 90 detik bekerja: banyak panggilan cepat tetap jawaban cepat.",
+      "workCheckIns": "Catatan kabar di pekerjaan latar belakang",
+      "workCheckInsHelp": "Jika kabar yang dijanjikan tidak datang, Agentes mengingatkan agen lalu memposting catatan sendiri. Mati: keduanya tidak."
     }
   },
   "stretchCard": {

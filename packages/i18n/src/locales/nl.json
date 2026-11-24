@@ -3472,7 +3472,14 @@
     "replies": {
       "title": "Hoe Agentes ingrijpt in zijn antwoorden",
       "followThrough": "Controle op beloftes",
-      "followThroughHelp": "Na zijn laatste antwoord leest een tweede AI of hij meer werk beloofde en kan hem tot 3 extra beurten geven. Uit: geen controle en geen extra beurten, het antwoord wordt geplaatst zoals het is geschreven."
+      "followThroughHelp": "Na zijn laatste antwoord leest een tweede AI of hij meer werk beloofde en kan hem tot 3 extra beurten geven. Uit: geen controle en geen extra beurten, het antwoord wordt geplaatst zoals het is geschreven.",
+      "workMove": "Lang werk naar de achtergrond verplaatsen",
+      "workMoveHelp": "Een lang verzoek verlaat het gesprek en wordt achtergrondwerk, vanzelf of op keuze van de agent. Uit: het blijft in het gesprek.",
+      "workMoveAfterMin": "Verplaatsen na (minuten)",
+      "workMoveAfterCalls": "Of na (AI-aanroepen)",
+      "workMoveAfterCallsHelp": "Telt pas na 90 seconden werk: veel snelle aanroepen zijn nog een snel antwoord.",
+      "workCheckIns": "Tussentijdse berichten bij achtergrondwerk",
+      "workCheckInsHelp": "Komt een beloofde update niet, dan herinnert Agentes de agent eraan en plaatst daarna zelf een bericht. Uit: geen van beide."
     }
   },
   "stretchCard": {

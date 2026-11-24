@@ -3652,6 +3652,16 @@ export const ptBR = {
       followThrough: "Verificação de promessas",
       followThroughHelp:
         "Depois da resposta final, uma segunda IA lê se ele prometeu mais trabalho e pode lhe dar até 3 turnos extras. Desligada: sem verificação e sem turnos extras, a resposta é publicada como foi escrita.",
+      workMove: "Levar trabalho longo para segundo plano",
+      workMoveHelp:
+        "Um pedido longo sai da conversa e vira trabalho em segundo plano, sozinho ou por escolha do agente. Desligado: fica na conversa.",
+      workMoveAfterMin: "Mover depois de (minutos)",
+      workMoveAfterCalls: "Ou depois de (chamadas à IA)",
+      workMoveAfterCallsHelp:
+        "Só conta depois de 90 segundos de trabalho: muitas chamadas rápidas ainda são uma resposta rápida.",
+      workCheckIns: "Notas de acompanhamento no segundo plano",
+      workCheckInsHelp:
+        "Quando uma atualização prometida não chega, o Agentes lembra o agente e depois publica uma nota ele mesmo. Desligado: nenhum dos dois.",
     },
     peopleNote: "Esses limites nunca seguram o que uma pessoa pede.",
     failed: "Não deu para salvar. Tente de novo.",

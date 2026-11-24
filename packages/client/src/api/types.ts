@@ -909,6 +909,11 @@ export interface AgentBrakes {
    * false: no judge after its final answer and no extra turns, the reply posted as written.
    */
   followThrough?: boolean;
+  /** Background work: the move (off: runs stay in the conversation), its two limits, and Agentes' check-in notes. */
+  workMove?: boolean;
+  workMoveAfterMin?: number;
+  workMoveAfterCalls?: number;
+  workCheckIns?: boolean;
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -931,6 +936,10 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   wakeWords: [],
   wakeWordsFrom: "people",
   followThrough: true,
+  workMove: true,
+  workMoveAfterMin: 4,
+  workMoveAfterCalls: 20,
+  workCheckIns: true,
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

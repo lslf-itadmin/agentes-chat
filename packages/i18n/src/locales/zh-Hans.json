@@ -3346,7 +3346,14 @@
     "replies": {
       "title": "Agentes 如何介入它的回复",
       "followThrough": "承诺检查",
-      "followThroughHelp": "在它给出最终回答后，第二个 AI 会判断它是否承诺了更多工作，并可能再给它最多 3 轮。关闭：不检查，也没有额外轮次，回复按原样发布。"
+      "followThroughHelp": "在它给出最终回答后，第二个 AI 会判断它是否承诺了更多工作，并可能再给它最多 3 轮。关闭：不检查，也没有额外轮次，回复按原样发布。",
+      "workMove": "把长时间的工作移到后台",
+      "workMoveHelp": "较长的请求会自动或由智能体选择离开对话，变成后台工作。关闭：留在对话中。",
+      "workMoveAfterMin": "多少分钟后移动",
+      "workMoveAfterCalls": "或多少次 AI 调用后",
+      "workMoveAfterCallsHelp": "只在工作 90 秒后才开始计数：很多次快速调用仍算快速回答。",
+      "workCheckIns": "后台工作的进度提醒",
+      "workCheckInsHelp": "承诺的更新没有到来时，Agentes 会提醒智能体，然后自己发布一条说明。关闭：都不做。"
     }
   },
   "stretchCard": {

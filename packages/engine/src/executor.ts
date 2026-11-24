@@ -4223,8 +4223,16 @@ async function executeRunInner(
   // Long work (ADR 0121): a move made through the bridge on another replica is heard here; the safety net moves a
   // person's run that is still in the conversation after a few minutes of work (or many calls), on every brain.
   const offWork = deps.pubsub?.subscribe(workTopic(run.id), () => void adoptWork().catch(() => {}));
-  const autoAfterMs = deps.workAutoAfterMs ?? WORK_AUTO_AFTER_MS;
-  const autoAfterCalls = deps.workAutoAfterCalls ?? WORK_AUTO_AFTER_CALLS;
+  // The agent's own limits when a person set them (stored with its brakes), else the server's.
+  const chosenWork = (agent?.autonomyBrakes ?? {}) as Record<string, unknown>;
+  const autoAfterMs =
+    chosenWork.workMoveAfterMin !== undefined
+      ? replyControls.workMoveAfterMin * 60_000
+      : (deps.workAutoAfterMs ?? WORK_AUTO_AFTER_MS);
+  const autoAfterCalls =
+    chosenWork.workMoveAfterCalls !== undefined
+      ? replyControls.workMoveAfterCalls
+      : (deps.workAutoAfterCalls ?? WORK_AUTO_AFTER_CALLS);
   const autoMinMs = deps.workAutoMinMs ?? WORK_AUTO_MIN_MS;
   let autoMoving = false;
   /** Writing its final answer: nothing left to move. */
@@ -4266,7 +4274,10 @@ async function executeRunInner(
   /** The first computer turn's checkouts sync, started during the quiet window for that plan. */
   let earlyCode: { plan: BrainPlan; code: Promise<CodeSetup | null> } | null = null;
   const autoTick: ReturnType<typeof setInterval> | null =
-    run.background || run.workId ? null : setInterval(() => void autoMove().catch(() => {}), deps.workTickMs ?? 5_000);
+    // Its move switched off: the run stays in the conversation.
+    run.background || run.workId || !replyControls.workMove
+      ? null
+      : setInterval(() => void autoMove().catch(() => {}), deps.workTickMs ?? 5_000);
   try {
     // A person who writes in a few messages gets one answer: what they add in the next seconds is read with the first.
     // A routed run skips it: the router already waited for the burst, its trigger is the last message of it.

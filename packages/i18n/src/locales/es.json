@@ -3584,7 +3584,14 @@
     "replies": {
       "title": "Cómo interviene Agentes en sus respuestas",
       "followThrough": "Revisión de promesas",
-      "followThroughHelp": "Tras su respuesta final, una segunda IA lee si prometió más trabajo y puede darle hasta 3 turnos extra. Desactivada: sin revisión ni turnos extra, la respuesta se publica tal como se escribió."
+      "followThroughHelp": "Tras su respuesta final, una segunda IA lee si prometió más trabajo y puede darle hasta 3 turnos extra. Desactivada: sin revisión ni turnos extra, la respuesta se publica tal como se escribió.",
+      "workMove": "Pasar el trabajo largo a segundo plano",
+      "workMoveHelp": "Un pedido largo sale de la conversación y pasa a trabajo en segundo plano, solo o por decisión del agente. Desactivado: se queda en la conversación.",
+      "workMoveAfterMin": "Mover tras (minutos)",
+      "workMoveAfterCalls": "O tras (llamadas a la IA)",
+      "workMoveAfterCallsHelp": "Cuenta solo tras 90 segundos de trabajo: muchas llamadas rápidas siguen siendo una respuesta rápida.",
+      "workCheckIns": "Notas de seguimiento en segundo plano",
+      "workCheckInsHelp": "Cuando una actualización prometida no llega, Agentes se lo recuerda al agente y luego publica una nota él mismo. Desactivado: ninguna de las dos."
     }
   },
   "stretchCard": {

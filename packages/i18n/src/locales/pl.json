@@ -3705,7 +3705,14 @@
     "replies": {
       "title": "Jak Agentes ingeruje w jego odpowiedzi",
       "followThrough": "Sprawdzanie obietnic",
-      "followThroughHelp": "Po jego ostatniej odpowiedzi druga AI sprawdza, czy obiecał więcej pracy, i może dać mu do 3 dodatkowych tur. Wyłączone: bez sprawdzania i bez dodatkowych tur, odpowiedź jest publikowana tak, jak została napisana."
+      "followThroughHelp": "Po jego ostatniej odpowiedzi druga AI sprawdza, czy obiecał więcej pracy, i może dać mu do 3 dodatkowych tur. Wyłączone: bez sprawdzania i bez dodatkowych tur, odpowiedź jest publikowana tak, jak została napisana.",
+      "workMove": "Przenoś długą pracę w tło",
+      "workMoveHelp": "Długa prośba opuszcza rozmowę i staje się pracą w tle, sama lub z wyboru agenta. Wyłączone: zostaje w rozmowie.",
+      "workMoveAfterMin": "Przenieś po (minutach)",
+      "workMoveAfterCalls": "Lub po (wywołaniach AI)",
+      "workMoveAfterCallsHelp": "Liczone dopiero po 90 sekundach pracy: wiele szybkich wywołań to wciąż szybka odpowiedź.",
+      "workCheckIns": "Notatki o postępie w pracy w tle",
+      "workCheckInsHelp": "Gdy obiecana aktualizacja nie nadchodzi, Agentes przypomina o niej agentowi, a potem sam publikuje notatkę. Wyłączone: ani jedno, ani drugie."
     }
   },
   "stretchCard": {

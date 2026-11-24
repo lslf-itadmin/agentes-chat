@@ -1,14 +1,32 @@
-import { afterEach, describe, expect, test } from "bun:test";
-import { schema } from "@agenteschat/db";
-import { type ModelRequest, textOf } from "@agenteschat/providers";
-import { AUTONOMY_DEFAULTS, autonomySettings, drainOutbox, getAgent, postPersonMessage, updateAgent } from "../src";
+import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
+import { eq, schema } from "@agenteschat/db";
+import { type ModelRequest, systemText, textOf } from "@agenteschat/providers";
+import {
+  type AgentRun,
+  AUTONOMY_DEFAULTS,
+  autonomySettings,
+  checkInWork,
+  drainOutbox,
+  getAgent,
+  moveToBackground,
+  postPersonMessage,
+  type ToolSource,
+  updateAgent,
+  WORK_AUTO_AFTER_CALLS,
+  WORK_AUTO_AFTER_MS,
+  WORK_IN_BACKGROUND_TOOL,
+  WORK_LIMITS,
+  workEligible,
+} from "../src";
 import { decideTurnEnd, FOLLOW_THROUGH_OFF, type TurnEnd } from "../src/continuation";
 import { type Fixture, setup } from "./fixtures";
 
 /**
  * Per-agent switches over Agentes' own interventions in an agent's replies, stored with its autonomy brakes: the
- * follow-through judge. Untouched, every one is today's behaviour.
+ * follow-through judge and the move to background work. Untouched, every one is today's behaviour.
  */
+
+setDefaultTimeout(30_000);
 
 let f: Fixture;
 afterEach(async () => {
@@ -146,5 +164,125 @@ describe("the follow-through judge", () => {
     expect(judgeCalls(f, "follow_through").length).toBeGreaterThan(0);
     expect(f.provider.calls.length).toBeGreaterThan(1);
     expect(lastUserText(f.provider.calls[1]?.request as ModelRequest)).toContain("You ended saying you would do more");
+  });
+});
+
+describe("the move to background work", () => {
+  const works = (fx: Fixture) => fx.db.select().from(schema.agentWorks);
+  /** A tool that takes a while, or no time at all: the run's work. */
+  const toolOf = (ms: number): ToolSource => ({
+    name: "build",
+    tools: async () => [
+      {
+        name: "build",
+        description: "Build",
+        scope: "context:read",
+        inputSchema: { type: "object", properties: {} },
+        execute: async () => {
+          await Bun.sleep(ms);
+          return { content: "built" };
+        },
+      },
+    ],
+  });
+
+  test("untouched: the move is on at today's limits (4 minutes, 20 calls), check-ins on; limits are clamped", () => {
+    const s = autonomySettings({});
+    expect(s).toMatchObject({ workMove: true, workMoveAfterMin: 4, workMoveAfterCalls: 20, workCheckIns: true });
+    expect(s.workMoveAfterMin * 60_000).toBe(WORK_AUTO_AFTER_MS);
+    expect(s.workMoveAfterCalls).toBe(WORK_AUTO_AFTER_CALLS);
+    expect(autonomySettings({ workMoveAfterMin: 0, workMoveAfterCalls: 9999 })).toMatchObject({
+      workMoveAfterMin: 2,
+      workMoveAfterCalls: 500,
+    });
+    expect(autonomySettings({ workMoveAfterMin: "ten" }).workMoveAfterMin).toBe(4);
+  });
+
+  test("off: a long run stays in the conversation, the tool isn't offered and the prompt doesn't ask for it", async () => {
+    f = await setup({
+      workTools: true,
+      toolSources: [toolOf(400)],
+      workAuto: { afterMs: 100, tickMs: 20 },
+      reply: (_req, call) =>
+        call === 1 ? { chunks: [], toolUses: [{ name: "build", input: {} }] } : { chunks: ["Build pronto."] },
+    });
+    await setBrakes(f, { workMove: false });
+    await ask(f, "@dev builda o app");
+    await drainOutbox(f.db, f.handlers);
+    expect(await works(f)).toHaveLength(0);
+    expect((await agentMessages(f)).map((m) => [m.body, m.threadId])).toEqual([["Build pronto.", null]]);
+    const first = f.provider.calls[0]?.request as ModelRequest;
+    expect((first.tools ?? []).some((t) => t.name === WORK_IN_BACKGROUND_TOOL)).toBe(false);
+    expect(systemText(first.system ?? [])).not.toContain("call work_in_background first");
+    const [run] = await f.db.select().from(schema.agentRuns);
+    expect(await workEligible(f.db, { ...(run as AgentRun), status: "running" })).toBe(false);
+  });
+
+  test("on (untouched), the same run moves after the limit", async () => {
+    f = await setup({
+      workTools: true,
+      toolSources: [toolOf(400)],
+      workAuto: { afterMs: 100, tickMs: 20 },
+      reply: (_req, call) =>
+        call === 1 ? { chunks: [], toolUses: [{ name: "build", input: {} }] } : { chunks: ["Build pronto."] },
+    });
+    await ask(f, "@dev builda o app");
+    await drainOutbox(f.db, f.handlers);
+    expect((await works(f))[0]?.how).toBe("auto");
+  });
+
+  test("the agent's own call limit replaces the server's", async () => {
+    const reply = (_req: ModelRequest, call: number) =>
+      call <= 4 ? { chunks: [], toolUses: [{ name: "build", input: {} }] } : { chunks: ["Feito."] };
+    // The server's limit is far away here: untouched, nothing moves.
+    f = await setup({ workTools: true, toolSources: [toolOf(40)], workAuto: { minMs: 50, tickMs: 10 }, reply });
+    await ask(f, "@dev confere tudo");
+    await drainOutbox(f.db, f.handlers);
+    expect(await works(f)).toHaveLength(0);
+    await f.close();
+
+    f = await setup({ workTools: true, toolSources: [toolOf(40)], workAuto: { minMs: 50, tickMs: 10 }, reply });
+    await setBrakes(f, { workMoveAfterCalls: 2 });
+    await ask(f, "@dev confere tudo");
+    await drainOutbox(f.db, f.handlers);
+    expect((await works(f))[0]?.how).toBe("auto");
+  });
+
+  test("check-ins off: no reminder of a promised update and no note of Agentes' own; on, both", async () => {
+    for (const checkIns of [false, true]) {
+      f = await setup();
+      if (!checkIns) await setBrakes(f, { workCheckIns: false });
+      await ask(f, "@dev roda a migração");
+      const [queued] = await f.db.select().from(schema.agentRuns);
+      const [run] = await f.db
+        .update(schema.agentRuns)
+        .set({ status: "running", startedAt: new Date(), heartbeatAt: new Date() })
+        .where(eq(schema.agentRuns.id, queued?.id as string))
+        .returning();
+      const out = await moveToBackground({ db: f.db, pubsub: f.pubsub }, run?.id as string, {
+        how: "agent",
+        title: "Migrar a cobrança",
+        say: "Vou cuidar disso.",
+      });
+      const work = out?.work;
+      if (!work?.nextUpdateAt) throw new Error("not moved");
+      const deps = { db: f.db, pubsub: f.pubsub };
+      const due = new Date(work.nextUpdateAt.getTime() + 1000);
+      const later = new Date(due.getTime() + WORK_LIMITS.graceMs);
+      const nudge = await checkInWork(deps, f.org.id, { workId: work.id, seq: 0, phase: "nudge" }, due);
+      const fallback = await checkInWork(deps, f.org.id, { workId: work.id, seq: 0, phase: "fallback" }, later);
+      const all = await f.db.select().from(schema.messages);
+      const reminders = all.filter((m) => (m.meta.notice as { kind?: string } | undefined)?.kind === "work_check_in");
+      const notes = all.filter((m) => (m.meta.workUpdate as { auto?: boolean } | undefined)?.auto);
+      if (checkIns) {
+        expect([nudge, fallback]).toEqual(["nudged", "posted"]);
+        expect([reminders.length, notes.length]).toEqual([1, 1]);
+      } else {
+        expect([nudge, fallback]).toEqual(["none", "none"]);
+        expect([reminders.length, notes.length]).toEqual([0, 0]);
+      }
+      await f.close();
+      f = undefined as unknown as Fixture;
+    }
   });
 });

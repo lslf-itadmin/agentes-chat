@@ -3591,7 +3591,14 @@
     "replies": {
       "title": "Come Agentes interviene nelle sue risposte",
       "followThrough": "Controllo delle promesse",
-      "followThroughHelp": "Dopo la risposta finale, una seconda IA legge se ha promesso altro lavoro e può dargli fino a 3 turni in più. Disattivato: nessun controllo né turni in più, la risposta viene pubblicata così com'è."
+      "followThroughHelp": "Dopo la risposta finale, una seconda IA legge se ha promesso altro lavoro e può dargli fino a 3 turni in più. Disattivato: nessun controllo né turni in più, la risposta viene pubblicata così com'è.",
+      "workMove": "Spostare il lavoro lungo in background",
+      "workMoveHelp": "Una richiesta lunga esce dalla conversazione e diventa lavoro in background, da sola o per scelta dell'agente. Disattivato: resta nella conversazione.",
+      "workMoveAfterMin": "Sposta dopo (minuti)",
+      "workMoveAfterCalls": "Oppure dopo (chiamate all'IA)",
+      "workMoveAfterCallsHelp": "Conta solo dopo 90 secondi di lavoro: tante chiamate veloci sono ancora una risposta veloce.",
+      "workCheckIns": "Note di aggiornamento in background",
+      "workCheckInsHelp": "Quando un aggiornamento promesso non arriva, Agentes lo ricorda all'agente e poi pubblica una nota da sé. Disattivato: nessuna delle due."
     }
   },
   "stretchCard": {

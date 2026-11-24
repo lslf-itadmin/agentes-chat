@@ -3341,7 +3341,14 @@
     "replies": {
       "title": "Agentes가 답장에 개입하는 방식",
       "followThrough": "약속 확인",
-      "followThroughHelp": "최종 답변 후 두 번째 AI가 추가 작업을 약속했는지 읽고 최대 3번의 추가 턴을 줄 수 있습니다. 끄면: 확인도 추가 턴도 없이 답장이 쓰인 그대로 게시됩니다."
+      "followThroughHelp": "최종 답변 후 두 번째 AI가 추가 작업을 약속했는지 읽고 최대 3번의 추가 턴을 줄 수 있습니다. 끄면: 확인도 추가 턴도 없이 답장이 쓰인 그대로 게시됩니다.",
+      "workMove": "긴 작업을 백그라운드로 옮기기",
+      "workMoveHelp": "긴 요청은 자동으로 또는 에이전트의 선택으로 대화를 떠나 백그라운드 작업이 됩니다. 끄면: 대화에 남습니다.",
+      "workMoveAfterMin": "옮기기까지 (분)",
+      "workMoveAfterCalls": "또는 (AI 호출 횟수)",
+      "workMoveAfterCallsHelp": "작업 90초 이후부터만 셉니다. 빠른 호출이 많아도 여전히 빠른 답변입니다.",
+      "workCheckIns": "백그라운드 작업 중간 알림",
+      "workCheckInsHelp": "약속한 업데이트가 오지 않으면 Agentes가 에이전트에게 알리고 직접 메모를 게시합니다. 끄면: 둘 다 하지 않습니다."
     }
   },
   "stretchCard": {

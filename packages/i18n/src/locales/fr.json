@@ -3589,7 +3589,14 @@
     "replies": {
       "title": "Comment Agentes intervient dans ses réponses",
       "followThrough": "Vérification des promesses",
-      "followThroughHelp": "Après sa réponse finale, une seconde IA vérifie s'il a promis plus de travail et peut lui donner jusqu'à 3 tours de plus. Désactivée : pas de vérification ni de tours en plus, la réponse est publiée telle qu'écrite."
+      "followThroughHelp": "Après sa réponse finale, une seconde IA vérifie s'il a promis plus de travail et peut lui donner jusqu'à 3 tours de plus. Désactivée : pas de vérification ni de tours en plus, la réponse est publiée telle qu'écrite.",
+      "workMove": "Passer le travail long en arrière-plan",
+      "workMoveHelp": "Une longue demande quitte la conversation et devient un travail en arrière-plan, d'elle-même ou au choix de l'agent. Désactivé : elle reste dans la conversation.",
+      "workMoveAfterMin": "Déplacer après (minutes)",
+      "workMoveAfterCalls": "Ou après (appels à l'IA)",
+      "workMoveAfterCallsHelp": "Compté seulement après 90 secondes de travail : beaucoup d'appels rapides restent une réponse rapide.",
+      "workCheckIns": "Notes de suivi en arrière-plan",
+      "workCheckInsHelp": "Quand une mise à jour promise n'arrive pas, Agentes le rappelle à l'agent puis publie lui-même une note. Désactivé : ni l'un ni l'autre."
     }
   },
   "stretchCard": {

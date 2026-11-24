@@ -45,6 +45,16 @@ export interface AutonomySettings {
    * and no extra or nudge turns from the turn-end controller (`decideTurnEnd`); the reply is posted as written.
    */
   followThrough: boolean;
+  /**
+   * The move to background work (`works.ts`, ADR 0121). `workMove` false: a run of it stays in the conversation (no
+   * automatic move, and `work_in_background` isn't offered). The automatic move comes after `workMoveAfterMin` minutes
+   * of work, or `workMoveAfterCalls` model calls (`WORK_AUTO_AFTER_MS`, `WORK_AUTO_AFTER_CALLS`). `workCheckIns`
+   * false: in its background work Agentes neither reminds it of a promised update nor posts one itself.
+   */
+  workMove: boolean;
+  workMoveAfterMin: number;
+  workMoveAfterCalls: number;
+  workCheckIns: boolean;
 }
 
 /**
@@ -71,7 +81,15 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   wakeWords: [],
   wakeWordsFrom: "people",
   followThrough: true,
+  workMove: true,
+  workMoveAfterMin: 4,
+  workMoveAfterCalls: 20,
+  workCheckIns: true,
 };
+
+/** The bounds of the automatic move's limits a person may set (minutes of work, model calls). */
+export const WORK_MOVE_MINUTES = { min: 2, max: 120 } as const;
+export const WORK_MOVE_CALLS = { min: 1, max: 500 } as const;
 
 /** Wake words a list holds at most, and the length of each (`wake-controls.ts`). */
 export const WAKE_WORDS_MAX = 50;
@@ -123,6 +141,10 @@ export function autonomySettings(raw: unknown): AutonomySettings {
     wakeWords: words(r.wakeWords),
     wakeWordsFrom: r.wakeWordsFrom === "agents" || r.wakeWordsFrom === "both" ? r.wakeWordsFrom : "people",
     followThrough: r.followThrough !== false,
+    workMove: r.workMove !== false,
+    workMoveAfterMin: count(r.workMoveAfterMin, WORK_MOVE_MINUTES.min, WORK_MOVE_MINUTES.max, d.workMoveAfterMin),
+    workMoveAfterCalls: count(r.workMoveAfterCalls, WORK_MOVE_CALLS.min, WORK_MOVE_CALLS.max, d.workMoveAfterCalls),
+    workCheckIns: r.workCheckIns !== false,
   };
 }
 

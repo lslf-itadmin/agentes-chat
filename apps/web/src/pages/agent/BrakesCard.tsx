@@ -20,13 +20,21 @@ import { CardHead, useAgentEdit } from "./context";
 
 const AT_ONCE = ["1", "2", "3", "5", "10"];
 const PRS = ["0", "1", "2", "3", "5", "10"];
+const MOVE_MINUTES = ["2", "4", "5", "10", "15", "30", "60", "120"];
+const MOVE_CALLS = ["10", "20", "30", "50", "100", "200"];
+/** A list of choices that also holds the saved value, so a value set elsewhere still shows. */
+const withValue = (list: string[], value: number) =>
+  (list.includes(String(value)) ? list : [...list, String(value)].sort((a, b) => Number(a) - Number(b))).map((n) => ({
+    value: n,
+    label: n,
+  }));
 
 /**
  * Configurações → Autonomia sem pedido (ADR 0131): what the agent may start that nobody asked for directly (costly
  * work asks first, how many jobs at once, PRs an hour) and which agents it may call. Saved at once, outside the page's
  * save bar, by who manages agents; everyone else reads it. The defaults keep today's autonomy for normal use. Its last
  * section is when the agent wakes up: on/off and one switch per source of wakes (the server's `wake-controls.ts`); after
- * it, the switches over Agentes' own interventions in its replies (the follow-through judge).
+ * it, the switches over Agentes' own interventions in its replies (the follow-through judge, the move to background work).
  */
 export function BrakesCard() {
   const { t } = useTranslation();
@@ -292,6 +300,67 @@ export function BrakesCard() {
             checked={w.followThrough}
             disabled={!editable}
             onCheckedChange={(followThrough) => save({ followThrough })}
+          />
+        </SettingRow>
+        <SettingRow
+          title={t("brakes.replies.workMove")}
+          hint={{
+            name: t("common.about", { label: t("brakes.replies.workMove") }),
+            text: t("brakes.replies.workMoveHelp"),
+          }}
+          htmlFor="agp-replies-move"
+        >
+          <Switch
+            id="agp-replies-move"
+            checked={w.workMove}
+            disabled={!editable}
+            onCheckedChange={(workMove) => save({ workMove })}
+          />
+        </SettingRow>
+        {w.workMove && (
+          <>
+            <SettingRow title={t("brakes.replies.workMoveAfterMin")} htmlFor="agp-replies-move-min">
+              <Select
+                id="agp-replies-move-min"
+                size="sm"
+                value={String(w.workMoveAfterMin)}
+                disabled={!editable}
+                onValueChange={(v) => save({ workMoveAfterMin: Number(v) })}
+                options={withValue(MOVE_MINUTES, w.workMoveAfterMin)}
+              />
+            </SettingRow>
+            <SettingRow
+              title={t("brakes.replies.workMoveAfterCalls")}
+              hint={{
+                name: t("common.about", { label: t("brakes.replies.workMoveAfterCalls") }),
+                text: t("brakes.replies.workMoveAfterCallsHelp"),
+              }}
+              htmlFor="agp-replies-move-calls"
+            >
+              <Select
+                id="agp-replies-move-calls"
+                size="sm"
+                value={String(w.workMoveAfterCalls)}
+                disabled={!editable}
+                onValueChange={(v) => save({ workMoveAfterCalls: Number(v) })}
+                options={withValue(MOVE_CALLS, w.workMoveAfterCalls)}
+              />
+            </SettingRow>
+          </>
+        )}
+        <SettingRow
+          title={t("brakes.replies.workCheckIns")}
+          hint={{
+            name: t("common.about", { label: t("brakes.replies.workCheckIns") }),
+            text: t("brakes.replies.workCheckInsHelp"),
+          }}
+          htmlFor="agp-replies-checkins"
+        >
+          <Switch
+            id="agp-replies-checkins"
+            checked={w.workCheckIns}
+            disabled={!editable}
+            onCheckedChange={(workCheckIns) => save({ workCheckIns })}
           />
         </SettingRow>
       </SettingsSection>

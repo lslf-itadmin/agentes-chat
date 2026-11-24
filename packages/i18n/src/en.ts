@@ -3746,6 +3746,15 @@ export const en = {
       followThrough: "Follow-through check",
       followThroughHelp:
         "After its final answer, a second AI reads whether it promised more work and can give it up to 3 extra turns. Off: no check and no extra turns, the reply is posted as written.",
+      workMove: "Move long work to the background",
+      workMoveHelp:
+        "A long request moves out of the conversation into background work, by itself or by the agent's choice. Off: it stays in the conversation.",
+      workMoveAfterMin: "Move after (minutes)",
+      workMoveAfterCalls: "Or after (AI calls)",
+      workMoveAfterCallsHelp: "Counted only after 90 seconds of work: many quick calls are still a quick answer.",
+      workCheckIns: "Check-in notes in background work",
+      workCheckInsHelp:
+        "When a promised update doesn't come, Agentes reminds the agent and then posts a note itself. Off: neither.",
     },
     peopleNote: "These limits never hold what a person asks for.",
     failed: "Couldn't save. Try again.",

@@ -387,6 +387,28 @@ export const AgentBrakes = z
       description:
         "After its final answer a judge reads whether it promised more and may give it extra turns; off: no judge and no extra turns, the reply is posted as written. Default on.",
     }),
+    workMove: z.boolean().openapi({
+      description:
+        "A long run moves to background work (automatically, or with its `work_in_background` tool); off: it stays in the conversation. Default on.",
+    }),
+    workMoveAfterMin: z
+      .number()
+      .int()
+      .min(2)
+      .max(120)
+      .openapi({ description: "Minutes of work before the automatic move. Default 4." }),
+    workMoveAfterCalls: z
+      .number()
+      .int()
+      .min(1)
+      .max(500)
+      .openapi({
+        description: "Model calls before the automatic move (after 90 seconds of work at least). Default 20.",
+      }),
+    workCheckIns: z.boolean().openapi({
+      description:
+        "In background work, Agentes reminds it of a promised update and posts one itself when none comes; off: neither. Default on.",
+    }),
   })
   .openapi("AgentBrakes");
 
