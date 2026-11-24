@@ -374,6 +374,53 @@ describe("wake words", () => {
     expect((await runsOf(qa.id)).map((r) => r.triggerMessageId)).toContain(second.id);
   });
 
+  /** An unattended agent's message (no run, no person behind it): work nobody asked for, so the brakes hold. */
+  const unattended = (body: string) =>
+    insertMessage(f.db, {
+      orgId: f.org.id,
+      channelId: f.general.id,
+      author: { type: "agent", agentId: f.agent.id, runId: null, hop: 1, stretchId: null },
+      body,
+    });
+  /** One job's handler alone: draining would also run the woken agents and end their runs. */
+  const runJob = (kind: string, payload: Record<string, unknown>) =>
+    f.handlers[kind]?.({ id: kind, orgId: f.org.id, kind, payload } as never, { finalAttempt: false });
+  const signalsOf = (agentId: string) =>
+    f.db.select().from(schema.autonomySignals).where(eq(schema.autonomySignals.agentId, agentId));
+
+  test("an unattended agent's message holding a word meets the brakes: noise goes to the digest, no run", async () => {
+    f = await setup({
+      judge: (kind) => (kind === "alert_triage" ? "noise" : undefined),
+      reply: () => ({ chunks: ["Feito."] }),
+    });
+    const qa = await agentInGeneral("QA", "qa");
+    await setBrakes(qa.id, { wakeWords: ["invoice"], wakeWordsFrom: "agents" });
+    const m = await unattended("the invoice sync timed out again");
+    await drainOutbox(f.db, f.handlers);
+    expect((await runsOf(qa.id)).map((r) => r.triggerMessageId)).not.toContain(m.id);
+    expect((await signalsOf(qa.id)).map((s) => [s.kind, s.messageId])).toEqual([["digest", m.id]]);
+  });
+
+  test("an unattended wake word at the agent's cap looks again later; work it lets through is recorded as a wake", async () => {
+    f = await setup({ reply: () => ({ chunks: ["Feito."] }) });
+    const qa = await agentInGeneral("QA", "qa");
+    await setBrakes(qa.id, { wakeWords: ["invoice"], wakeWordsFrom: "both", maxUnrequested: 1 });
+    const first = await unattended("the invoice import failed");
+    await runJob("message.posted", { messageId: first.id });
+    const [run] = await runsOf(qa.id);
+    expect(run?.triggerMessageId).toBe(first.id);
+    expect((await signalsOf(qa.id)).map((s) => s.kind)).toEqual(["wake"]);
+    // Its first unrequested run still open: the next one waits for room instead of starting.
+    const second = await unattended("a customer disputes the invoice total");
+    await runJob("message.posted", { messageId: second.id });
+    expect((await runsOf(qa.id)).map((r) => r.triggerMessageId)).not.toContain(second.id);
+    expect((await signalsOf(qa.id)).map((s) => s.kind).sort()).toEqual(["later", "wake"]);
+    // Room again: the later look starts it through the word path (it names no mention).
+    await f.db.update(schema.agentRuns).set({ status: "done" }).where(eq(schema.agentRuns.agentId, qa.id));
+    await runJob("autonomy.later", { messageId: second.id, agentId: qa.id, look: 1 });
+    expect((await runsOf(qa.id)).map((r) => r.triggerMessageId)).toContain(second.id);
+  });
+
   test("an agent switched off isn't woken by its words", async () => {
     f = await setup();
     const qa = await agentInGeneral("QA", "qa");

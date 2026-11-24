@@ -584,6 +584,9 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
       });
       // A tell_agent note (agents' DM, no mention) starts its run itself.
       if (wake.length > 0 && message.meta.agentNote) await startNoteRun(deps.db, message, agentId);
+      // A wake word's wake (`wake-words.ts`) names no mention: it starts through the word path, already braked.
+      else if (wake.length > 0 && !message.mentionedAgentIds.includes(agentId))
+        await startWordWakes(deps, message, wake, { maxHops: deps.maxHops, braked: true });
       else if (wake.length > 0)
         await dispatchMentions(
           deps.db,
@@ -641,7 +644,7 @@ export function createJobHandlers(deps: JobDeps): JobHandlers {
           worded.length > 0 &&
           !(message.threadId && (await missionOfThread(deps.db, message.orgId, message.threadId)))
         )
-          await startWordWakes(deps, message, worded, { maxHops: deps.maxHops });
+          await startWordWakes({ ...deps, judge: brakeJudge() }, message, worded, { maxHops: deps.maxHops });
       }
       // Addressed a mission's agent without the right to act there (ADR 0029): a suggestion, no run.
       if (message.meta.missionSuggestion) return routed("none", message.mentionedAgentIds, [], "mission_suggestion");
