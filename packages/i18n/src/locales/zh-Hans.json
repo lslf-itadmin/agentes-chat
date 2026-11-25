@@ -3342,6 +3342,29 @@
       "fromPeople": "人",
       "fromAgents": "智能体",
       "fromBoth": "两者"
+    },
+    "replies": {
+      "title": "Agentes 如何介入它的回复",
+      "followThrough": "承诺检查",
+      "followThroughHelp": "在它给出最终回答后，第二个 AI 会判断它是否承诺了更多工作，并可能再给它最多 3 轮。关闭：不检查，也没有额外轮次，回复按原样发布。",
+      "workMove": "把长时间的工作移到后台",
+      "workMoveHelp": "较长的请求会自动或由智能体选择离开对话，变成后台工作。关闭：留在对话中。",
+      "workMoveAfterMin": "多少分钟后移动",
+      "workMoveAfterCalls": "或多少次 AI 调用后",
+      "workMoveAfterCallsHelp": "只在工作 90 秒后才开始计数：很多次快速调用仍算快速回答。",
+      "workCheckIns": "后台工作的进度提醒",
+      "workCheckInsHelp": "承诺的更新没有到来时，Agentes 会提醒智能体，然后自己发布一条说明。关闭：都不做。",
+      "rulesTitle": "Agentes 写入其指令的内置条目",
+      "rulesNote": "Agentes 会把这些条目加到每个智能体的指令中。关闭只会去掉那一条。",
+      "ruleBackground": "把较长的请求移到后台工作",
+      "ruleKeepPosted": "长时间工作时，不时用一句话告知进展",
+      "ruleNoPromise": "不要以承诺结束一轮：现在就做",
+      "rulePlainWords": "用简单的日常用语写作",
+      "ruleContinue": "延续同一段对话，不重复",
+      "sandboxComments": "沙盒步骤之间的说明",
+      "sandboxCommentsHelp": "当它的 AI 端点在一次回复中运行代码沙盒时，步骤之间写的文字会随回复一起到达。仅活动：只发布最后一步之后的文字，之前的文字保留在活动中。",
+      "sandboxPost": "发布",
+      "sandboxActivity": "仅活动"
     }
   },
   "stretchCard": {

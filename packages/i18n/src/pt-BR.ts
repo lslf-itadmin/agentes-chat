@@ -3647,6 +3647,35 @@ export const ptBR = {
       fromAgents: "Agentes",
       fromBoth: "Os dois",
     },
+    replies: {
+      title: "Como o Agentes interfere nas respostas",
+      followThrough: "Verificação de promessas",
+      followThroughHelp:
+        "Depois da resposta final, uma segunda IA lê se ele prometeu mais trabalho e pode lhe dar até 3 turnos extras. Desligada: sem verificação e sem turnos extras, a resposta é publicada como foi escrita.",
+      workMove: "Levar trabalho longo para segundo plano",
+      workMoveHelp:
+        "Um pedido longo sai da conversa e vira trabalho em segundo plano, sozinho ou por escolha do agente. Desligado: fica na conversa.",
+      workMoveAfterMin: "Mover depois de (minutos)",
+      workMoveAfterCalls: "Ou depois de (chamadas à IA)",
+      workMoveAfterCallsHelp:
+        "Só conta depois de 90 segundos de trabalho: muitas chamadas rápidas ainda são uma resposta rápida.",
+      workCheckIns: "Notas de acompanhamento no segundo plano",
+      workCheckInsHelp:
+        "Quando uma atualização prometida não chega, o Agentes lembra o agente e depois publica uma nota ele mesmo. Desligado: nenhum dos dois.",
+      rulesTitle: "Linhas do Agentes nas instruções",
+      rulesNote:
+        "O Agentes acrescenta estas linhas às instruções de todo agente. Desligar deixa de fora só aquela linha.",
+      ruleBackground: "Levar pedidos longos para segundo plano",
+      ruleKeepPosted: "Em trabalho longo, dar notícias com uma linha curta de vez em quando",
+      ruleNoPromise: "Nunca terminar o turno com uma promessa: fazer agora",
+      rulePlainWords: "Escrever em palavras simples do dia a dia",
+      ruleContinue: "Seguir uma só conversa, sem repetir",
+      sandboxComments: "Comentários entre passos do sandbox",
+      sandboxCommentsHelp:
+        "Quando o endpoint de IA roda um sandbox de código dentro de uma resposta, o texto escrito entre os passos chega junto com a resposta. Só atividade: publica apenas o texto depois do último passo, e o texto anterior fica na atividade.",
+      sandboxPost: "Publicar",
+      sandboxActivity: "Só atividade",
+    },
     peopleNote: "Esses limites nunca seguram o que uma pessoa pede.",
     failed: "Não deu para salvar. Tente de novo.",
   },

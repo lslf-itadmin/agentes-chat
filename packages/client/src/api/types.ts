@@ -904,6 +904,24 @@ export interface AgentBrakes {
   wakeScheduled?: boolean;
   wakeWords?: string[];
   wakeWordsFrom?: "people" | "agents" | "both";
+  /**
+   * Agentes' own interventions in its replies; absent from a server without them (the defaults). `followThrough`
+   * false: no judge after its final answer and no extra turns, the reply posted as written.
+   */
+  followThrough?: boolean;
+  /** Background work: the move (off: runs stay in the conversation), its two limits, and Agentes' check-in notes. */
+  workMove?: boolean;
+  workMoveAfterMin?: number;
+  workMoveAfterCalls?: number;
+  workCheckIns?: boolean;
+  /** Agentes' built-in lines in its instructions, each on by default; off leaves out that line alone. */
+  ruleBackground?: boolean;
+  ruleKeepPosted?: boolean;
+  ruleNoPromise?: boolean;
+  rulePlainWords?: boolean;
+  ruleContinue?: boolean;
+  /** Text between the steps its endpoint ran itself (a code sandbox): posted, or kept as activity but the last part. */
+  sandboxComments?: "post" | "activity";
 }
 
 /** The brakes an agent has when none were set (`autonomySettings`' defaults on the server). */
@@ -925,6 +943,17 @@ export const BRAKES_DEFAULTS: AgentBrakes = {
   wakeScheduled: true,
   wakeWords: [],
   wakeWordsFrom: "people",
+  followThrough: true,
+  workMove: true,
+  workMoveAfterMin: 4,
+  workMoveAfterCalls: 20,
+  workCheckIns: true,
+  ruleBackground: true,
+  ruleKeepPosted: true,
+  ruleNoPromise: true,
+  rulePlainWords: true,
+  ruleContinue: true,
+  sandboxComments: "post",
 };
 
 /** An agent no longer in the team (archived or deleted): what its messages and reports still show. */

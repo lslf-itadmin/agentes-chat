@@ -3465,6 +3465,29 @@
       "fromPeople": "Personen",
       "fromAgents": "Agenten",
       "fromBoth": "Beiden"
+    },
+    "replies": {
+      "title": "Wie Agentes in seine Antworten eingreift",
+      "followThrough": "Prüfung auf Zusagen",
+      "followThroughHelp": "Nach seiner letzten Antwort liest eine zweite KI, ob es weitere Arbeit versprochen hat, und kann ihm bis zu 3 zusätzliche Runden geben. Aus: keine Prüfung, keine zusätzlichen Runden, die Antwort wird so veröffentlicht, wie sie geschrieben wurde.",
+      "workMove": "Lange Arbeit in den Hintergrund verschieben",
+      "workMoveHelp": "Eine lange Anfrage verlässt die Unterhaltung und wird zu Hintergrundarbeit, von selbst oder nach Wahl des Agenten. Aus: Sie bleibt in der Unterhaltung.",
+      "workMoveAfterMin": "Verschieben nach (Minuten)",
+      "workMoveAfterCalls": "Oder nach (KI-Aufrufen)",
+      "workMoveAfterCallsHelp": "Zählt erst nach 90 Sekunden Arbeit: Viele schnelle Aufrufe sind noch eine schnelle Antwort.",
+      "workCheckIns": "Zwischenmeldungen bei Hintergrundarbeit",
+      "workCheckInsHelp": "Kommt ein versprochenes Update nicht, erinnert Agentes den Agenten und veröffentlicht dann selbst eine Notiz. Aus: keins von beidem.",
+      "rulesTitle": "Feste Zeilen von Agentes in seinen Anweisungen",
+      "rulesNote": "Agentes fügt diese Zeilen den Anweisungen jedes Agenten hinzu. Aus lässt nur diese Zeile weg.",
+      "ruleBackground": "Lange Anfragen in den Hintergrund verschieben",
+      "ruleKeepPosted": "Bei langer Arbeit ab und zu mit einer kurzen Zeile informieren",
+      "ruleNoPromise": "Eine Runde nie mit einem Versprechen beenden: jetzt erledigen",
+      "rulePlainWords": "In einfachen Alltagsworten schreiben",
+      "ruleContinue": "Eine laufende Unterhaltung fortführen, ohne Wiederholungen",
+      "sandboxComments": "Kommentare zwischen Sandbox-Schritten",
+      "sandboxCommentsHelp": "Führt sein KI-Endpunkt innerhalb einer Antwort eine Code-Sandbox aus, kommt der Text zwischen den Schritten mit der Antwort. Nur Aktivität: Nur der Text nach dem letzten Schritt wird veröffentlicht, der frühere Text bleibt in der Aktivität.",
+      "sandboxPost": "Veröffentlichen",
+      "sandboxActivity": "Nur Aktivität"
     }
   },
   "stretchCard": {

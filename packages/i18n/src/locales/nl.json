@@ -3468,6 +3468,29 @@
       "fromPeople": "Personen",
       "fromAgents": "Agenten",
       "fromBoth": "Beide"
+    },
+    "replies": {
+      "title": "Hoe Agentes ingrijpt in zijn antwoorden",
+      "followThrough": "Controle op beloftes",
+      "followThroughHelp": "Na zijn laatste antwoord leest een tweede AI of hij meer werk beloofde en kan hem tot 3 extra beurten geven. Uit: geen controle en geen extra beurten, het antwoord wordt geplaatst zoals het is geschreven.",
+      "workMove": "Lang werk naar de achtergrond verplaatsen",
+      "workMoveHelp": "Een lang verzoek verlaat het gesprek en wordt achtergrondwerk, vanzelf of op keuze van de agent. Uit: het blijft in het gesprek.",
+      "workMoveAfterMin": "Verplaatsen na (minuten)",
+      "workMoveAfterCalls": "Of na (AI-aanroepen)",
+      "workMoveAfterCallsHelp": "Telt pas na 90 seconden werk: veel snelle aanroepen zijn nog een snel antwoord.",
+      "workCheckIns": "Tussentijdse berichten bij achtergrondwerk",
+      "workCheckInsHelp": "Komt een beloofde update niet, dan herinnert Agentes de agent eraan en plaatst daarna zelf een bericht. Uit: geen van beide.",
+      "rulesTitle": "Vaste regels van Agentes in zijn instructies",
+      "rulesNote": "Agentes voegt deze regels toe aan de instructies van elke agent. Uit laat alleen die regel weg.",
+      "ruleBackground": "Lange verzoeken naar de achtergrond verplaatsen",
+      "ruleKeepPosted": "Bij lang werk af en toe met een korte regel laten weten hoe het gaat",
+      "ruleNoPromise": "Een beurt nooit met een belofte eindigen: nu doen",
+      "rulePlainWords": "In eenvoudige alledaagse woorden schrijven",
+      "ruleContinue": "Eén doorlopend gesprek voortzetten, zonder herhalen",
+      "sandboxComments": "Opmerkingen tussen sandboxstappen",
+      "sandboxCommentsHelp": "Als het AI-endpoint binnen één antwoord een codesandbox draait, komt de tekst tussen de stappen mee met het antwoord. Alleen activiteit: alleen de tekst na de laatste stap wordt geplaatst, de eerdere tekst blijft in de activiteit.",
+      "sandboxPost": "Plaatsen",
+      "sandboxActivity": "Alleen activiteit"
     }
   },
   "stretchCard": {

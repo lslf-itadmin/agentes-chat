@@ -3580,6 +3580,29 @@
       "fromPeople": "Personas",
       "fromAgents": "Agentes",
       "fromBoth": "Ambos"
+    },
+    "replies": {
+      "title": "Cómo interviene Agentes en sus respuestas",
+      "followThrough": "Revisión de promesas",
+      "followThroughHelp": "Tras su respuesta final, una segunda IA lee si prometió más trabajo y puede darle hasta 3 turnos extra. Desactivada: sin revisión ni turnos extra, la respuesta se publica tal como se escribió.",
+      "workMove": "Pasar el trabajo largo a segundo plano",
+      "workMoveHelp": "Un pedido largo sale de la conversación y pasa a trabajo en segundo plano, solo o por decisión del agente. Desactivado: se queda en la conversación.",
+      "workMoveAfterMin": "Mover tras (minutos)",
+      "workMoveAfterCalls": "O tras (llamadas a la IA)",
+      "workMoveAfterCallsHelp": "Cuenta solo tras 90 segundos de trabajo: muchas llamadas rápidas siguen siendo una respuesta rápida.",
+      "workCheckIns": "Notas de seguimiento en segundo plano",
+      "workCheckInsHelp": "Cuando una actualización prometida no llega, Agentes se lo recuerda al agente y luego publica una nota él mismo. Desactivado: ninguna de las dos.",
+      "rulesTitle": "Líneas propias de Agentes en sus instrucciones",
+      "rulesNote": "Agentes añade estas líneas a las instrucciones de cada agente. Desactivar deja fuera solo esa línea.",
+      "ruleBackground": "Pasar los pedidos largos a segundo plano",
+      "ruleKeepPosted": "En trabajos largos, dar noticias con una línea corta de vez en cuando",
+      "ruleNoPromise": "Nunca terminar un turno con una promesa: hacerlo ahora",
+      "rulePlainWords": "Escribir con palabras sencillas del día a día",
+      "ruleContinue": "Seguir una sola conversación, sin repetir",
+      "sandboxComments": "Comentarios entre pasos del sandbox",
+      "sandboxCommentsHelp": "Cuando su endpoint de IA ejecuta un sandbox de código dentro de una respuesta, el texto escrito entre los pasos llega con la respuesta. Solo actividad: se publica solo el texto después del último paso y el texto anterior queda en la actividad.",
+      "sandboxPost": "Publicar",
+      "sandboxActivity": "Solo actividad"
     }
   },
   "stretchCard": {

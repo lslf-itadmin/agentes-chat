@@ -3741,6 +3741,33 @@ export const en = {
       fromAgents: "Agents",
       fromBoth: "Both",
     },
+    replies: {
+      title: "How Agentes steps into its replies",
+      followThrough: "Follow-through check",
+      followThroughHelp:
+        "After its final answer, a second AI reads whether it promised more work and can give it up to 3 extra turns. Off: no check and no extra turns, the reply is posted as written.",
+      workMove: "Move long work to the background",
+      workMoveHelp:
+        "A long request moves out of the conversation into background work, by itself or by the agent's choice. Off: it stays in the conversation.",
+      workMoveAfterMin: "Move after (minutes)",
+      workMoveAfterCalls: "Or after (AI calls)",
+      workMoveAfterCallsHelp: "Counted only after 90 seconds of work: many quick calls are still a quick answer.",
+      workCheckIns: "Check-in notes in background work",
+      workCheckInsHelp:
+        "When a promised update doesn't come, Agentes reminds the agent and then posts a note itself. Off: neither.",
+      rulesTitle: "Agentes' built-in lines in its instructions",
+      rulesNote: "Agentes adds these lines to every agent's instructions. Off leaves out that line alone.",
+      ruleBackground: "Move long requests to background work",
+      ruleKeepPosted: "In long work, keep people posted with a short line now and then",
+      ruleNoPromise: "Never end a turn on a promise: do it now",
+      rulePlainWords: "Write in plain everyday words",
+      ruleContinue: "Carry on one ongoing conversation, without repeating",
+      sandboxComments: "Comments between sandbox steps",
+      sandboxCommentsHelp:
+        "When its AI endpoint runs a code sandbox inside one reply, the text written between the steps arrives with the reply. Activity only: just the text after the last step is posted, the earlier text stays in the activity.",
+      sandboxPost: "Post",
+      sandboxActivity: "Activity only",
+    },
     peopleNote: "These limits never hold what a person asks for.",
     failed: "Couldn't save. Try again.",
   },

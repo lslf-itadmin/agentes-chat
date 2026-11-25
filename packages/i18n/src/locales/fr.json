@@ -3585,6 +3585,29 @@
       "fromPeople": "Personnes",
       "fromAgents": "Les agents",
       "fromBoth": "Les deux"
+    },
+    "replies": {
+      "title": "Comment Agentes intervient dans ses réponses",
+      "followThrough": "Vérification des promesses",
+      "followThroughHelp": "Après sa réponse finale, une seconde IA vérifie s'il a promis plus de travail et peut lui donner jusqu'à 3 tours de plus. Désactivée : pas de vérification ni de tours en plus, la réponse est publiée telle qu'écrite.",
+      "workMove": "Passer le travail long en arrière-plan",
+      "workMoveHelp": "Une longue demande quitte la conversation et devient un travail en arrière-plan, d'elle-même ou au choix de l'agent. Désactivé : elle reste dans la conversation.",
+      "workMoveAfterMin": "Déplacer après (minutes)",
+      "workMoveAfterCalls": "Ou après (appels à l'IA)",
+      "workMoveAfterCallsHelp": "Compté seulement après 90 secondes de travail : beaucoup d'appels rapides restent une réponse rapide.",
+      "workCheckIns": "Notes de suivi en arrière-plan",
+      "workCheckInsHelp": "Quand une mise à jour promise n'arrive pas, Agentes le rappelle à l'agent puis publie lui-même une note. Désactivé : ni l'un ni l'autre.",
+      "rulesTitle": "Lignes d'Agentes dans ses instructions",
+      "rulesNote": "Agentes ajoute ces lignes aux instructions de chaque agent. Désactiver retire cette ligne seulement.",
+      "ruleBackground": "Passer les longues demandes en arrière-plan",
+      "ruleKeepPosted": "Pendant un long travail, donner des nouvelles d'une courte ligne de temps en temps",
+      "ruleNoPromise": "Ne jamais finir un tour sur une promesse : le faire tout de suite",
+      "rulePlainWords": "Écrire avec des mots simples de tous les jours",
+      "ruleContinue": "Poursuivre une seule conversation, sans répéter",
+      "sandboxComments": "Commentaires entre les étapes du sandbox",
+      "sandboxCommentsHelp": "Quand son endpoint d'IA exécute un sandbox de code dans une seule réponse, le texte écrit entre les étapes arrive avec la réponse. Activité seulement : seul le texte après la dernière étape est publié, le texte précédent reste dans l'activité.",
+      "sandboxPost": "Publier",
+      "sandboxActivity": "Activité seulement"
     }
   },
   "stretchCard": {

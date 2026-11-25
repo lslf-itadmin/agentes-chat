@@ -22,6 +22,7 @@ import { readerOf, readerOfMessage } from "./agents-dm-reads";
 import type { AiStatusDeps } from "./ai-status";
 import { canTalkTo, NO_PERSON, speakerFor, viaAgent } from "./audience";
 import { runAuthority, UUID } from "./authority";
+import { autonomySettings } from "./autonomy-settings";
 import { type BlockSpecReader, blockStateNotes } from "./block-state";
 import { isSandboxedBrain } from "./brains/types";
 import { caches } from "./cache";
@@ -181,12 +182,22 @@ export function howYouWork(level: ApprovalsLevel, personal: boolean): string {
 export const WORK_IN_BACKGROUND_LINE =
   '- If a request will take more than ~2 minutes or several rounds of tools (builds, migrations, investigations, multi-file changes, reports), call work_in_background first. In `say`, tell them in one short line that you\'re on it (e.g. "Vou cuidar disso em segundo plano. Te aviso aqui."), in their language, without a time: the line under it shows when the next update comes, and when it finished. Quick answers never go to the background. Set `card` when the work is substantial: likely over ~15 min, a plan of 3 or more steps, or a deliverable someone will look at (a pull request, a document, a report, a migration, a data import). Never poll or wait for your own work.';
 
-export const finishWhatYouStart = (followUp: boolean) =>
-  `- Finish what you start. Never end your turn on a promise you don't keep in it ('I'll send the numbers', 'vou checar de novo', 'te aviso quando terminar'): do it now. ${
-    followUp
-      ? "If it has to wait (a build, a deploy, a job still running), set a follow_up to come back to it and say when."
-      : "If it has to wait, say what is left and what it waits on."
-  } After a person approves or answers what you waited on, go on with the task at once and tell them what came of it. When the person already asked for the outcome, do the work instead of asking whether to. In long work, keep them posted with a short line now and then.`;
+/**
+ * `lines`: the agent's switches for two of its parts (`AutonomySettings.ruleNoPromise`, `ruleKeepPosted`); absent
+ * is on, and off leaves out that part alone.
+ */
+export const finishWhatYouStart = (followUp: boolean, lines: { noPromise?: boolean; keepPosted?: boolean } = {}) =>
+  `- Finish what you start.${
+    lines.noPromise === false
+      ? ""
+      : ` Never end your turn on a promise you don't keep in it ('I'll send the numbers', 'vou checar de novo', 'te aviso quando terminar'): do it now. ${
+          followUp
+            ? "If it has to wait (a build, a deploy, a job still running), set a follow_up to come back to it and say when."
+            : "If it has to wait, say what is left and what it waits on."
+        }`
+  } After a person approves or answers what you waited on, go on with the task at once and tell them what came of it. When the person already asked for the outcome, do the work instead of asking whether to.${
+    lines.keepPosted === false ? "" : " In long work, keep them posted with a short line now and then."
+  }`;
 
 /**
  * Most people aren't technical (ADR 0147): what happened and what to do first, in everyday words, never the name of
@@ -1024,11 +1035,16 @@ export async function buildRunContext(
   // Most stable first, so prompt-cache prefixes are shared: the rules are the same for every agent with the same
   // tools, the organization's block for every agent of the organization (a breakpoint after it, token-trim B5),
   // the agent's block per agent.
+  // The agent's switches for Agentes' built-in lines (stored with its autonomy brakes): off leaves out that line alone.
+  const rules = autonomySettings(agent.autonomyBrakes);
   const system: ContextBlock[] = [
     {
       text: [
         options.toolsAvailable
-          ? `${howYouWork(agent.approvalsLevel, personal)}\n${finishWhatYouStart(Boolean(options.followUp))}${options.work ? `\n${WORK_IN_BACKGROUND_LINE}` : ""}`
+          ? `${howYouWork(agent.approvalsLevel, personal)}\n${finishWhatYouStart(Boolean(options.followUp), {
+              noPromise: rules.ruleNoPromise,
+              keepPosted: rules.ruleKeepPosted,
+            })}${options.work && rules.ruleBackground ? `\n${WORK_IN_BACKGROUND_LINE}` : ""}`
           : "",
         [
           "# How to reply",
@@ -1043,7 +1059,7 @@ export async function buildRunContext(
           personal
             ? "- Reply in the language of the message you are answering; if that is unclear, in the language the person uses (what they wrote about themselves and recent messages). Ids and code stay as they are."
             : "- Reply in the language of the message you are answering; if that is unclear, in the language the organization uses (its context and recent messages). Ids and code stay as they are.",
-          PLAIN_WORDS_LINE,
+          rules.rulePlainWords ? PLAIN_WORDS_LINE : "",
           `- Write like ${personal ? "a trusted assistant texting the person" : "a colleague texting the team"}, not a report: short paragraphs in a natural spoken tone. No headings, no bold, no labeled bullets ('Size:', 'Cause:', 'Logs:') and no numbered recommendations: say each thing in a sentence. A list only for steps or a plain enumeration.`,
           '- Numbers you compare (categories, periods, a trend, a ranking, parts of a whole) get a chart without being asked: a ```chart block holding only JSON data, like {"type":"bar","title":"Conversion by trigger","subtitle":"Purchases ÷ views, week of Oct 18","unit":"%","labels":["a","b"],"series":[{"name":"Rate","values":[15,6.7]}]}. Types: bar (rankings), line (over time), pie (parts of a whole), number (one big figure: "value" and an optional "delta" like "+0.8 pp vs last week", with labels/series for a small trend line or empty). Every series has one value per label, at most 24 labels; people can flip the chart to a table, so don\'t repeat every number in your text: say the takeaway around it. A few rows of several columns go in a Markdown table. More data than that belongs in a table saved to the Drive.',
           options.blocks && !options.routine && !run.background
@@ -1051,7 +1067,7 @@ export async function buildRunContext(
             : "",
           "- To point people to a channel, write its name with # (#engineering): it shows as a link to it. To a message, also one you only mention ('in my report this morning'), paste its link (search_context gives it): it shows as a pill.",
           "- Name what the data names, as it is: the person and where they are, the time with its zone, the version, the deploy ('Inês, from Braga, at 03:55', not 'a user'). Put news against what came before: is it new, the same pattern as always, how many so far.",
-          CONTINUE_THE_CONVERSATION,
+          rules.ruleContinue ? CONTINUE_THE_CONVERSATION : "",
           "- Keep it as short as the news: a report with nothing for the person to decide fits in one or two short paragraphs; leave out what didn't change and numbers that don't move the story.",
           "- When something is fine, say it in a few words ('the rest was quiet'). No ritual openings or closings ('I remain available', 'let me know if you need anything'); a greeting only when it is natural, like the first message here of the morning, yours or the person's ('Now' below gives the local time and when the previous message here was). Caveats about your own tools or data only when they change the answer. When something is the person's to decide, end with that one question, asked directly.",
           options.toolsAvailable

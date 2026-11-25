@@ -40,6 +40,38 @@ export interface AutonomySettings {
   wakeScheduled: boolean;
   wakeWords: string[];
   wakeWordsFrom: "people" | "agents" | "both";
+  /**
+   * Agentes' own interventions in its replies. `followThrough` false: no follow-through judge after its final answer
+   * and no extra or nudge turns from the turn-end controller (`decideTurnEnd`); the reply is posted as written.
+   */
+  followThrough: boolean;
+  /**
+   * The move to background work (`works.ts`, ADR 0121). `workMove` false: a run of it stays in the conversation (no
+   * automatic move, and `work_in_background` isn't offered). The automatic move comes after `workMoveAfterMin` minutes
+   * of work, or `workMoveAfterCalls` model calls (`WORK_AUTO_AFTER_MS`, `WORK_AUTO_AFTER_CALLS`). `workCheckIns`
+   * false: in its background work Agentes neither reminds it of a promised update nor posts one itself.
+   */
+  workMove: boolean;
+  workMoveAfterMin: number;
+  workMoveAfterCalls: number;
+  workCheckIns: boolean;
+  /**
+   * Agentes' built-in lines in every run's instructions (`context.ts`), each on by default; off leaves out that line
+   * alone: `WORK_IN_BACKGROUND_LINE` (`ruleBackground`), the "keep them posted" sentence (`ruleKeepPosted`) and the
+   * "never end your turn on a promise" part (`ruleNoPromise`) of `finishWhatYouStart`, `PLAIN_WORDS_LINE`
+   * (`rulePlainWords`) and `CONTINUE_THE_CONVERSATION` (`ruleContinue`).
+   */
+  ruleBackground: boolean;
+  ruleKeepPosted: boolean;
+  ruleNoPromise: boolean;
+  rulePlainWords: boolean;
+  ruleContinue: boolean;
+  /**
+   * Comments between sandbox steps (`sandbox-comments.ts`): on a reply whose endpoint ran its own tools inside the call
+   * (the blocks kept, Anthropic-style endpoints), `post` posts all of its text; `activity` posts only the text after
+   * the last of those steps and keeps the earlier text as activity, the way narration before Agentes' own tool calls is.
+   */
+  sandboxComments: "post" | "activity";
 }
 
 /**
@@ -65,7 +97,22 @@ export const AUTONOMY_DEFAULTS: AutonomySettings = {
   wakeScheduled: true,
   wakeWords: [],
   wakeWordsFrom: "people",
+  followThrough: true,
+  workMove: true,
+  workMoveAfterMin: 4,
+  workMoveAfterCalls: 20,
+  workCheckIns: true,
+  ruleBackground: true,
+  ruleKeepPosted: true,
+  ruleNoPromise: true,
+  rulePlainWords: true,
+  ruleContinue: true,
+  sandboxComments: "post",
 };
+
+/** The bounds of the automatic move's limits a person may set (minutes of work, model calls). */
+export const WORK_MOVE_MINUTES = { min: 2, max: 120 } as const;
+export const WORK_MOVE_CALLS = { min: 1, max: 500 } as const;
 
 /** Wake words a list holds at most, and the length of each (`wake-controls.ts`). */
 export const WAKE_WORDS_MAX = 50;
@@ -116,6 +163,17 @@ export function autonomySettings(raw: unknown): AutonomySettings {
     wakeScheduled: r.wakeScheduled !== false,
     wakeWords: words(r.wakeWords),
     wakeWordsFrom: r.wakeWordsFrom === "agents" || r.wakeWordsFrom === "both" ? r.wakeWordsFrom : "people",
+    followThrough: r.followThrough !== false,
+    workMove: r.workMove !== false,
+    workMoveAfterMin: count(r.workMoveAfterMin, WORK_MOVE_MINUTES.min, WORK_MOVE_MINUTES.max, d.workMoveAfterMin),
+    workMoveAfterCalls: count(r.workMoveAfterCalls, WORK_MOVE_CALLS.min, WORK_MOVE_CALLS.max, d.workMoveAfterCalls),
+    workCheckIns: r.workCheckIns !== false,
+    ruleBackground: r.ruleBackground !== false,
+    ruleKeepPosted: r.ruleKeepPosted !== false,
+    ruleNoPromise: r.ruleNoPromise !== false,
+    rulePlainWords: r.rulePlainWords !== false,
+    ruleContinue: r.ruleContinue !== false,
+    sandboxComments: r.sandboxComments === "activity" ? "activity" : "post",
   };
 }
 

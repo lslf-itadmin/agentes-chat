@@ -54,6 +54,9 @@ export interface ContinuationState {
   toolsNudged?: boolean;
 }
 
+/** The rule a turn ends by when the agent's follow-through is switched off: its reply is posted as written. */
+export const FOLLOW_THROUGH_OFF = "follow_through_off";
+
 export type ContinuationVerdict = "done" | "continue" | "ask" | "untried" | "secret" | "unbacked";
 
 /**
@@ -576,6 +579,11 @@ export interface TurnEnd {
   comesBack?(): Promise<boolean>;
   /** The judgment; null when the workspace has no judge. */
   verdict: (() => Promise<ContinuationVerdict>) | null;
+  /**
+   * The agent's follow-through switch (`AutonomySettings.followThrough`); absent is on. Off: the turn ends as it is,
+   * no judgment and no extra turn, and its reply is posted as written.
+   */
+  followThrough?: boolean;
   /** What an `untried` turn is reminded of (`untriedNudge`): its means and what it tried, filled by `verdict`. */
   evidence?: { means: string[]; tried: string[] };
 }
@@ -597,6 +605,7 @@ export type TurnEndDecision = {
  */
 export async function decideTurnEnd(t: TurnEnd): Promise<TurnEndDecision> {
   const d = await answerTurnEnd(t);
+  if (t.followThrough === false) return d;
   return (!UNPOSTED.has(d.rule) && wordingHold(t)) || d;
 }
 
@@ -636,6 +645,8 @@ async function answerTurnEnd(t: TurnEnd): Promise<TurnEndDecision> {
   const max = t.kind === "routine" ? CONTINUE.routineMaxPerRun : CONTINUE.maxPerRun;
   const canNudge = t.state.count < max;
   if (t.bound) return { outcome: "done", rule: t.bound };
+  // Switched off for this agent: no judgment and no extra turn of any kind; a quiet turn stays quiet.
+  if (t.followThrough === false) return { outcome: "done", rule: t.quiet ? "quiet" : FOLLOW_THROUGH_OFF };
   // Quiet or not, a widget's run speaks only through update_widget: without it, nobody gets anything.
   if (t.widgetOwed && canNudge) return { outcome: "continue", rule: "widget", nudge: WIDGET_NUDGE };
   if (t.quiet) return { outcome: "done", rule: "quiet" };

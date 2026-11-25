@@ -62,6 +62,7 @@ import {
   orgAutoModels,
   withAuto,
 } from "./auto-model";
+import { autonomySettings } from "./autonomy-settings";
 import type { BlockSpecReader } from "./block-state";
 import { ASK_CHOICES_TOOL, SHOW_BLOCK_TOOL, someoneAnswers } from "./blocks";
 import { brainOf } from "./brain-settings";
@@ -331,6 +332,7 @@ import {
   transitionRun,
 } from "./runs";
 import { SANDBOX_SCOPE, truncateOutput } from "./sandbox";
+import { postableText, splitAtServerTools } from "./sandbox-comments";
 import { secretResult } from "./secrets";
 import { enabledSkills } from "./skills";
 import { type SpillRecord, spillMayHelp, spillPlan, spillTarget } from "./spill";
@@ -1751,6 +1753,8 @@ async function executeRunInner(
     stored && isRightHand(stored)
       ? (await withPersonalBrain(db, stored, await rightHandPerson(db, stored, run))).agent
       : stored;
+  /** Its switches over Agentes' own interventions in its replies (stored with its autonomy brakes). */
+  const replyControls = autonomySettings(agent?.autonomyBrakes);
   // Claude Code defers our tools itself (its ToolSearch): a new run lists every tool the agent has, the same in every
   // run, instead of the groups a judge picks, so its cached prefix holds across runs and sessions (ADR 0043).
   if (needsContext && deps.toolsOnDemand && agent && brainOf(agent.brain) === "claude_code") {
@@ -4220,8 +4224,16 @@ async function executeRunInner(
   // Long work (ADR 0121): a move made through the bridge on another replica is heard here; the safety net moves a
   // person's run that is still in the conversation after a few minutes of work (or many calls), on every brain.
   const offWork = deps.pubsub?.subscribe(workTopic(run.id), () => void adoptWork().catch(() => {}));
-  const autoAfterMs = deps.workAutoAfterMs ?? WORK_AUTO_AFTER_MS;
-  const autoAfterCalls = deps.workAutoAfterCalls ?? WORK_AUTO_AFTER_CALLS;
+  // The agent's own limits when a person set them (stored with its brakes), else the server's.
+  const chosenWork = (agent?.autonomyBrakes ?? {}) as Record<string, unknown>;
+  const autoAfterMs =
+    chosenWork.workMoveAfterMin !== undefined
+      ? replyControls.workMoveAfterMin * 60_000
+      : (deps.workAutoAfterMs ?? WORK_AUTO_AFTER_MS);
+  const autoAfterCalls =
+    chosenWork.workMoveAfterCalls !== undefined
+      ? replyControls.workMoveAfterCalls
+      : (deps.workAutoAfterCalls ?? WORK_AUTO_AFTER_CALLS);
   const autoMinMs = deps.workAutoMinMs ?? WORK_AUTO_MIN_MS;
   let autoMoving = false;
   /** Writing its final answer: nothing left to move. */
@@ -4263,7 +4275,10 @@ async function executeRunInner(
   /** The first computer turn's checkouts sync, started during the quiet window for that plan. */
   let earlyCode: { plan: BrainPlan; code: Promise<CodeSetup | null> } | null = null;
   const autoTick: ReturnType<typeof setInterval> | null =
-    run.background || run.workId ? null : setInterval(() => void autoMove().catch(() => {}), deps.workTickMs ?? 5_000);
+    // Its move switched off: the run stays in the conversation.
+    run.background || run.workId || !replyControls.workMove
+      ? null
+      : setInterval(() => void autoMove().catch(() => {}), deps.workTickMs ?? 5_000);
   try {
     // A person who writes in a few messages gets one answer: what they add in the next seconds is read with the first.
     // A routed run skips it: the router already waited for the burst, its trigger is the last message of it.
@@ -4932,8 +4947,13 @@ async function executeRunInner(
       // A computer brain's turn with nothing to say (its tools ran through the bridge) adds no empty message.
       if (result.content.length > 0) transcript.messages.push({ role: "assistant", content: result.content });
       // Text before tool calls is narration of the work: kept on the model call's step for its activity, never live.
-      const turnText = dropSquashedEcho(textOf(result.content).trim());
-      const narration = result.stopReason === "tool_use" && turnText ? turnText : "";
+      // Comments between sandbox steps (`sandbox-comments.ts`): with the agent's switch on `activity`, a reply whose
+      // endpoint ran its own tools inside the call posts only what came after the last of them; the rest is activity.
+      const sandboxSplit = replyControls.sandboxComments === "activity" ? splitAtServerTools(result.content) : null;
+      const turnText = dropSquashedEcho((sandboxSplit ? sandboxSplit.after : textOf(result.content)).trim());
+      const narration = [sandboxSplit?.before ?? "", result.stopReason === "tool_use" ? turnText : ""]
+        .filter(Boolean)
+        .join("\n\n");
       // The calls a computer turn ran itself (Codex's commands and edits, Claude Code's Bash, WebSearch…):
       // the report tells action from talk by them. Ours through the bridge have steps of their own.
       const ours = new Set(turnTools.map((t) => t.name));
@@ -5227,6 +5247,7 @@ async function executeRunInner(
                 })
             : null,
           evidence: judging.evidence,
+          followThrough: replyControls.followThrough,
         });
         transcript.continuation = advanceContinuation(state, decision, transcript.executedCalls ?? 0);
         const { nudge, ...recorded } = { ...decision, count: transcript.continuation.count };
@@ -5299,7 +5320,7 @@ async function executeRunInner(
         : words ||
           (updates.length > 0 ? updates.map(describeUpdate).join("\n") : "") ||
           saved ||
-          closingSummary(transcript, anythingPosted) ||
+          closingSummary(transcript, anythingPosted, replyControls.sandboxComments) ||
           (result.executedCount > 0 && !anythingPosted ? DONE_TEXT : "");
       // It changed something since its last message and wrote nothing more: its receipts still go out.
       let text = written || (!silent && anythingPosted && (await hasUnpostedReceipts(db, run)) ? DONE_TEXT : "");
@@ -5422,7 +5443,10 @@ async function executeRunInner(
         executed: transcript.executedCalls ?? 0,
         bound: t.stuck?.endAt !== undefined ? "stuck" : t.wrapUpNoted ? "step_limit" : null,
         quiet: silent && !judged,
-        decided: decided && !silent && !said && !capped && !closingSummary(t, true) ? decided : null,
+        decided:
+          decided && !silent && !said && !capped && !closingSummary(t, true, replyControls.sandboxComments)
+            ? decided
+            : null,
         unanswered: !silent && !viaRoutine && !words && (sentinelOnly || (!text && !anythingPosted)),
         unreached,
         judged: owesAnswer && !capped ? judged : "",
@@ -5451,6 +5475,7 @@ async function executeRunInner(
               })
           : null,
         evidence: judging.evidence,
+        followThrough: replyControls.followThrough,
       });
       // A card holds a question: a reply with no question mark asks nothing (the card has no choices), so it is its
       // answer and nobody waits on it. One that only repeats its last message word for word, with nothing else to
@@ -6120,10 +6145,11 @@ const hasToolUse = (m: Transcript["messages"][number]) =>
  * the last post ("Installed Go and built it."), else a plain "Done." when it
  * used tools, else nothing (an empty reply fails the run).
  */
-function closingSummary(t: Transcript, anythingPosted: boolean): string {
+function closingSummary(t: Transcript, anythingPosted: boolean, sandboxComments: "post" | "activity" = "post"): string {
   const turns = t.messages.slice(t.postedUpTo).filter((m) => m.role === "assistant");
+  // Text before the last step its endpoint ran itself is activity when the agent chose so (`sandbox-comments.ts`).
   const last = turns
-    .map((m) => stripSentinel(textOf(m.content)))
+    .map((m) => stripSentinel(postableText(m.content, sandboxComments)))
     .filter(Boolean)
     .at(-1);
   if (last) return last;

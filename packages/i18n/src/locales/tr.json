@@ -3454,6 +3454,29 @@
       "fromPeople": "Kişiler",
       "fromAgents": "Ajanlar",
       "fromBoth": "İkisi de"
+    },
+    "replies": {
+      "title": "Agentes yanıtlarına nasıl müdahale eder",
+      "followThrough": "Söz kontrolü",
+      "followThroughHelp": "Son yanıtından sonra ikinci bir yapay zekâ daha fazla iş vaat edip etmediğini okur ve ona en fazla 3 ek tur verebilir. Kapalı: kontrol ve ek tur yok, yanıt yazıldığı gibi gönderilir.",
+      "workMove": "Uzun işi arka plana taşı",
+      "workMoveHelp": "Uzun bir istek kendiliğinden ya da ajanın seçimiyle konuşmadan çıkıp arka plan işine dönüşür. Kapalı: konuşmada kalır.",
+      "workMoveAfterMin": "Şu süreden sonra taşı (dakika)",
+      "workMoveAfterCalls": "Ya da şu kadar sonra (yapay zekâ çağrısı)",
+      "workMoveAfterCallsHelp": "Yalnızca 90 saniyelik çalışmadan sonra sayılır: çok sayıda hızlı çağrı hâlâ hızlı bir yanıttır.",
+      "workCheckIns": "Arka plan işinde ara notlar",
+      "workCheckInsHelp": "Söz verilen güncelleme gelmezse Agentes ajana hatırlatır, sonra kendisi bir not gönderir. Kapalı: ikisi de olmaz.",
+      "rulesTitle": "Talimatlarındaki Agentes satırları",
+      "rulesNote": "Agentes bu satırları her ajanın talimatlarına ekler. Kapatmak yalnızca o satırı çıkarır.",
+      "ruleBackground": "Uzun istekleri arka plan işine taşı",
+      "ruleKeepPosted": "Uzun işte arada bir kısa bir satırla haber ver",
+      "ruleNoPromise": "Turu asla bir sözle bitirme: şimdi yap",
+      "rulePlainWords": "Gündelik, sade kelimelerle yaz",
+      "ruleContinue": "Tekrarlamadan tek bir sohbeti sürdür",
+      "sandboxComments": "Sandbox adımları arasındaki yorumlar",
+      "sandboxCommentsHelp": "Yapay zekâ uç noktası tek bir yanıtın içinde kod sandbox'ı çalıştırdığında, adımlar arasında yazılan metin yanıtla birlikte gelir. Yalnızca etkinlik: sadece son adımdan sonraki metin paylaşılır, önceki metin etkinlikte kalır.",
+      "sandboxPost": "Paylaş",
+      "sandboxActivity": "Yalnızca etkinlik"
     }
   },
   "stretchCard": {

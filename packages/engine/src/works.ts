@@ -3,6 +3,7 @@ import { and, asc, type Database, desc, type Executor, eq, gte, inArray, isNull,
 import { serverText } from "@agenteschat/i18n";
 import type { AppLocale } from "@agenteschat/i18n/locale";
 import { runAuthority } from "./authority";
+import { autonomySettings } from "./autonomy-settings";
 import { getChannelCached } from "./context";
 import type { ContextDeps } from "./context/summaries";
 import { deliverNotice, publishDelivery } from "./delivery";
@@ -352,8 +353,21 @@ type RunLike = Pick<
  * not a mission's thread, not a routine's run and not one that already is.
  */
 export async function workEligible(db: Executor, run: RunLike): Promise<boolean> {
-  return !run.workId && !isTerminal(run.status) && movableRun(db, run);
+  return !run.workId && !isTerminal(run.status) && (await workMoveOn(db, run.agentId)) && movableRun(db, run);
 }
+
+/** The agent's background-work switches (`AutonomySettings.workMove`, `workCheckIns`), read from its stored brakes. */
+async function workControls(db: Executor, agentId: string) {
+  const [row] = await db
+    .select({ brakes: schema.agents.autonomyBrakes })
+    .from(schema.agents)
+    .where(eq(schema.agents.id, agentId))
+    .limit(1);
+  return autonomySettings(row?.brakes);
+}
+
+/** Whether the agent's runs may move to the background at all: off, they stay in the conversation. */
+export const workMoveOn = async (db: Executor, agentId: string) => (await workControls(db, agentId)).workMove;
 
 /** Whether a run's work may leave where it answers now (`moveRun`, `moveToBackground`). */
 export async function movableRun(db: Executor, run: RunLike): Promise<boolean> {
@@ -713,6 +727,8 @@ export async function checkInWork(
     .orderBy(desc(agentRuns.createdAt))
     .limit(1);
   if (!run || isTerminal(run.status)) return "none";
+  // Its check-ins switched off: no reminder of a promised update, and none posted for it.
+  if (!(await workControls(db, work.agentId)).workCheckIns) return "none";
   // Waiting on a person, its plan or its computer: the card that stopped it is the update.
   if (run.status !== "running" && run.status !== "queued") return "none";
   if (input.phase === "nudge") {
