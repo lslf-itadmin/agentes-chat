@@ -432,6 +432,39 @@ export const envVars = {
     description: "How many recent channel (or thread) messages are included in an agent's context.",
     section: "Agents",
   },
+  LSLF_CONTROLS_PRESET: {
+    schema: z.enum(["stock", "steady"]).default("stock"),
+    description:
+      "Agent controls (ADR 0186): the preset every agent starts from when it has none of its own. `stock` (default): the server as it ships. `steady`: the server acts less on its own (fewer judges, nudges and injected blocks) as each control is wired; an agent's own preset or setting wins over it. Also the base of the workspace-scope controls (`LSLF_WORKSPACE_SET`).",
+    section: "Agents",
+  },
+  LSLF_CONTROLS_ORGS: {
+    schema: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value
+          ?.split(",")
+          .map((entry) => entry.trim())
+          .filter(Boolean),
+      ),
+    description:
+      "Workspace ids, separated by commas, that `LSLF_CONTROLS_PRESET` and `LSLF_WORKSPACE_SET` apply to. Unset (default): every workspace on this server. An agent's own preset or setting applies wherever it is.",
+    section: "Agents",
+    example: "<workspace id>,<workspace id>",
+  },
+  LSLF_WORKSPACE_SET: {
+    schema: z
+      .string()
+      .regex(/^\s*[A-Za-z]+\s*=\s*(on|off)\s*(,\s*[A-Za-z]+\s*=\s*(on|off)\s*)*$/, {
+        error: "must be key=on or key=off pairs separated by commas, such as reflect=off,summaries=off",
+      })
+      .optional(),
+    description:
+      "Agent controls whose work is a workspace's, not one agent's (ADR 0186), set one by one over `LSLF_CONTROLS_PRESET`, as `key=on|off` pairs separated by commas. Keys: `reflect`, `summaries`, `memoryUpkeep`, `memoryMerge`, `skillUpkeep`, `threadAssess`, `vaultSync`; any other is ignored. Unset (default): the preset's values.",
+    section: "Agents",
+    example: "reflect=off,summaries=off",
+  },
   AGENT_MAX_HOPS: {
     schema: z.coerce.number().int().min(1).max(500).default(100),
     description:

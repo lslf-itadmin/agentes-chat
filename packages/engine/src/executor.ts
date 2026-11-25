@@ -227,6 +227,7 @@ import {
   rateLimited,
 } from "./key-line";
 import { answerNoTurn, deliverLive, listenLiveSteering, renderSteered } from "./live-steer";
+import { type LslfServerSettings, RUN_CONTROLS_STEP_KEY, resolveAgentControls } from "./lslf-controls";
 import {
   accountFailureCause,
   noteAccountFailure,
@@ -455,6 +456,11 @@ export interface EngineDeps {
   /** Overrides the model's context window from the catalog (tests). */
   contextWindowTokens?: number;
   contextMessages: number;
+  /**
+   * The server's agent controls (ADR 0186): `LSLF_CONTROLS_PRESET`, `LSLF_CONTROLS_ORGS`, `LSLF_WORKSPACE_SET`.
+   * Absent: stock.
+   */
+  lslf?: LslfServerSettings;
   /** Tool Gateway. Without it agents can only chat. */
   tools?: ToolGateway;
   /** Model calls one run may make (tool loops). */
@@ -1788,6 +1794,9 @@ async function executeRunInner(
   if (fresh && trigger)
     deps.onTiming?.("trigger_to_claim_ms", claimedAt - trigger.createdAt.getTime(), { runId: run.id });
   if (!agent || agent.archivedAt) return fail("agent_archived");
+  // Its controls are resolved once, when the run starts, and recorded on its first `context` step: a change made
+  // while it runs never reaches it (ADR 0186). No behaviour reads them yet.
+  const controls = needsContext ? resolveAgentControls(agent.autonomyBrakes, run.orgId, deps.lslf) : null;
   // A new run that can't think (no key, a computer brain signed out or missing, and no fallback) fails here,
   // before the judges below, any context or a model call.
   if (needsContext) {
@@ -2422,6 +2431,7 @@ async function executeRunInner(
       wikiPages: wikiPages.pageIds,
       // The daily report counts these runs as read-only (`autonomy-report.ts`).
       ...(heldBack.length > 0 ? { heldBack } : {}),
+      ...(controls ? { [RUN_CONTROLS_STEP_KEY]: controls } : {}),
     };
     later(() => addRunStep(db, run, "context", stats));
     transcript = {

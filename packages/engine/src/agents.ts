@@ -19,7 +19,7 @@ import type { AgentAppearance } from "./appearance";
 import { dropAgentRules } from "./approval-rules";
 import { answersOthers, audienceOf, canTalkTo, speakerFor } from "./audience";
 import { recordAudit } from "./audit";
-import { type AutonomySettings, autonomySettings, chosenAutonomy } from "./autonomy-settings";
+import { autonomySettings, chosenAutonomy, type StoredAutonomy } from "./autonomy-settings";
 import { isComputerBrain } from "./brains/types";
 import { caches } from "./cache";
 import { modelInfoFor, usableCredentialRow } from "./credentials";
@@ -94,8 +94,8 @@ export interface AgentInput {
   monthlyBudgetNanoUsd?: number | null;
   /** It may follow a light reply with a sticker or a GIF (ADR 0091), as often as the workspace allows. */
   mediaReplies?: boolean;
-  /** Its autonomy brakes (ADR 0131), stored as `autonomySettings` reads them. */
-  autonomyBrakes?: Partial<AutonomySettings>;
+  /** Its autonomy brakes (ADR 0131), stored as `autonomySettings` reads them, and its controls (`lslf`, ADR 0186). */
+  autonomyBrakes?: StoredAutonomy;
   /** How much it asks before acting (ADR 0173). */
   approvalsLevel?: ApprovalsLevel;
 }

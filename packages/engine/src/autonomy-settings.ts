@@ -3,6 +3,8 @@
  * engine's message paths.
  */
 
+import { type LslfStored, lslfControls } from "./lslf-controls";
+
 /** A costly step: opening a PR or MR, installing packages, a long run (`LONG_STEPS` tool calls and more). */
 export type CostKind = "pr" | "install" | "long";
 export const COST_KINDS: readonly CostKind[] = ["pr", "install", "long"];
@@ -177,13 +179,20 @@ export function autonomySettings(raw: unknown): AutonomySettings {
   };
 }
 
+/** The brakes as stored: the settings people chose, and the agent's controls (`lslf`, ADR 0186). */
+export type StoredAutonomy = Partial<AutonomySettings> & { lslf?: LslfStored };
+
 /**
  * What to store for settings a person set (`raw`): only the fields it holds, each normalized. A field nobody chose
  * stays out, so it follows `AUTONOMY_DEFAULTS` when they change instead of keeping the default of the day it was saved.
+ * The agent's controls (`lslf`) are kept, normalized by `lslfControls`; empty ones (or `null`) are left out.
  */
-export function chosenAutonomy(raw: Record<string, unknown>): Partial<AutonomySettings> {
+export function chosenAutonomy(raw: Record<string, unknown>): StoredAutonomy {
   const all = autonomySettings(raw);
-  return Object.fromEntries(Object.entries(all).filter(([k]) => raw[k] !== undefined));
+  const chosen: StoredAutonomy = Object.fromEntries(Object.entries(all).filter(([k]) => raw[k] !== undefined));
+  const lslf = lslfControls(raw.lslf);
+  if (lslf.preset || lslf.set) chosen.lslf = lslf;
+  return chosen;
 }
 
 /**
