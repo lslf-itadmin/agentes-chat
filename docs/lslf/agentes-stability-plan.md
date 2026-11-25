@@ -78,11 +78,23 @@ agents in that list. Agents not listed keep stock Agentes behaviour, and LJ can 
 - **"First file block not closed":** **Fact:** that text is not in this repo, so the message comes from the proxy or
   DATO's side. **Inference:** the 48,000-character message was probably cut by one of the caps under issue 4, or it
   was old enough for `cutOld`. The run's `context` step would show which; trace it before choosing a fix.
-- **Proxy as the source of truth:** send stable ids on every custom-endpoint call, using the existing `withHeaders`
-  (`custom.ts:172`): `X-Agentes-Org`, `X-Agentes-Channel`, `X-Agentes-Thread`, `X-Agentes-Run`, `X-Agentes-Agent`, and
-  the ids of every file in the conversation, not only those in the window. The proxy can then fetch whole history and
-  files itself, through the API with its own token, and stop depending on what the window sends. Switch:
-  `CUSTOM_ENDPOINT_CONTEXT_HEADERS=on`, default `off`.
+- **Proxy as the source of truth (revised after Codex turn 2):** send stable ids on every custom-endpoint call, using
+  the existing `withHeaders` (`custom.ts:172`): `X-Agentes-Org`, `X-Agentes-Run`, `X-Agentes-Agent`, and for reference
+  `X-Agentes-Channel` and `X-Agentes-Thread`. Switch: `CUSTOM_ENDPOINT_CONTEXT_HEADERS=on`, default `off`.
+  - **Fact:** one channel's history is not one reader's history. In an agents' DM every person's consultations land
+    together, and `context.ts` keeps only the messages made for the run's own reader (`forSamePerson`,
+    `context.ts:1714`, using `readerOf`). Explicit reads in that DM follow the same rule (`agentsDmReads`,
+    `agents-dm-reads.ts`).
+  - **Change:** the proxy never reads history by channel or thread id with a token of its own. It reads by **run**:
+    a server endpoint, `GET …/runs/{runId}/history` (needs an LSLF token only the proxy holds), returns the messages
+    and file ids that run may read, filtered by the same code as the window (`forSamePerson`, `agentsDmReads`,
+    channel access). The channel and thread ids are labels, not keys.
+  - **Until that endpoint exists:** no history header is sent for an agents' DM, and the proxy treats a channel it
+    has no run-scoped read for as window-only.
+  - **Inference:** this fork has no run-scoped read API today; whether an existing API token type fits is not
+    checked. The endpoint is new code and needs its own review.
+  - **Testing needs:** in an agents' DM holding two people's exchanges, the run-scoped read returns only the current
+    reader's, exactly what the window would show uncapped; a run of another workspace is refused.
 
 ### 4. Shortened reads (40,000 characters)
 
@@ -107,15 +119,38 @@ agents in that list. Agents not listed keep stock Agentes behaviour, and LJ can 
 
 ### 5. Agent-to-agent wake blocked from background work
 
-- **Fact:** `canTalkTo` (`packages/engine/src/audience.ts`, about line 195) returns `false` when `userId` is null and
-  `audienceMode` is `"owner"`. A background run with nobody behind it is `NO_PERSON`. The refusal text comes from
-  `unreachableWhy` (`continuation.ts:856`).
-- **No-code option:** set both agents' audience to `people` with LJ named. This does not fix the null-person case,
-  because the run has no requester.
-- **Switch:** `AGENT_SAME_OWNER_WAKE=on`, default `off`. An agent's mention or hand-off may wake another agent with the
-  same `ownerUserId`, acting as that owner. The permission check is still `canTalkTo`; the owner is the speaker.
-- **Takes away from Agentes:** blocking one person's agents from talking to each other when no person is behind a run.
-- **Risk:** this widens reach. Limit it to same-owner agents and record each wake in `audit_log`.
+- **Fact:** `canTalkTo` (`packages/engine/src/audience.ts:208`) first lets the agent's owner through (line 209), then
+  refuses a null `userId` unless the target's `audienceMode` is `"everyone"` (lines 212-213). A run with nobody behind
+  it speaks as `NO_PERSON`. The refusal text comes from `unreachableWhy` (`continuation.ts:857`).
+- **Fact:** `authority.ts` keeps accountability apart from authority: a `routine` run's creator stays accountable "but
+  the run never acts as them", and an `unattended` run "works as the agent itself" and is refused what needs a
+  person's request.
+- **Fact:** `ask_agent`/`tell_agent` already use one narrow stand-in: for a routine's run, the routine's creator is the
+  person checked (`consultations.ts:131-134`, `person = behind ?? routine?.creatorUserId`). An agent's own unattended
+  work (`reason: "agent"`) gets no stand-in.
+- **No-code options:** (i) the target's audience set to `people` with LJ named does **not** help: a null person fails
+  line 213. (ii) The target's audience set to `everyone` does help (line 212), but opens the agent to every member.
+- ~~Switch: `AGENT_SAME_OWNER_WAKE`, acting as the owner.~~ Withdrawn after Codex turn 2 (see "Changes after Codex
+  turn 2").
+- **Switch (revised):** `LSLF_AGENT_WAKE_PAIRS`, default empty. A list of directed pairs LJ writes by hand, e.g.
+  `claudevcoo>dato,dato>claudevcoo`. The env var is the explicit delegation: LJ, the owner of both agents, authorizes
+  that one named agent may wake another named agent. Rules:
+  1. It applies only when the run is `unattended` with reason `agent`. A `person` run keeps today's check; a `routine`
+     run keeps today's creator rule.
+  2. Both agents must have the same `ownerUserId`, and that owner must still be a member who may talk to agents.
+     Otherwise the pair is ignored.
+  3. `canTalkTo` is not changed and the owner is **not** substituted as the speaker. The pair check sits beside it, in
+     the wake paths (`reach.ts` for mentions, `consultations.ts` for `ask_agent`/`tell_agent`).
+  4. The woken run keeps the real authority: `unattended`, reason `agent`, nobody behind it. It works as the agent
+     itself; anything that needs a person's request stays refused; approvals and pauses go to the owner, as today.
+  5. Every wake through a pair writes an `audit_log` row (`agent.wake_pair`, both agents, the run ids).
+  6. The other brakes stay: a target switched off, or not taking hand-offs (`wakeRefusal`), still refuses.
+- **Takes away from Agentes:** blocking two agents LJ named from reaching each other when no person is behind a run.
+- **Risk:** this is the one switch that touches a permission check (AGENTS.md rule 6). It widens reach only for pairs
+  LJ names, and never lends a person's authority. LJ must approve it explicitly in the brief before code.
+- **Testing needs:** a pair wakes, and the woken run's `runAuthority` is `unattended`; a pair across two owners is
+  ignored; a `person` run is unaffected; a tool that needs a person is still refused in the woken run; one audit row
+  per wake.
 
 ### 6. Names versus handles
 
@@ -134,7 +169,10 @@ agents in that list. Agents not listed keep stock Agentes behaviour, and LJ can 
 - **Switch:** `AGENT_THREAD_SHARES_CHANNEL=on`. A thread run also gets the channel's last N messages that carry files
   or are the agent's own reports, plus a list of every file posted in the channel (title, id) with a "read it with
   read_artifact" line.
-- **Bigger option:** combined with the headers in issue 3, the proxy keeps one history per channel, not per thread.
+- **Bigger option (revised after Codex turn 2):** combined with the run-scoped read in issue 3, the proxy keeps one
+  history per channel **and reader**, never per channel alone. In an agents' DM, the reader (`readerOf`) is part of
+  the key. **Fact:** `AGENT_THREAD_SHARES_CHANNEL` above reads only through the server's context builder, so it keeps
+  every filter as is; only the proxy-side option needed this change.
 - **Takes away from Agentes:** the thread boundary as a wall.
 
 ### 8. Agentes-driven prompts
@@ -155,6 +193,18 @@ agents in that list. Agents not listed keep stock Agentes behaviour, and LJ can 
 
 ---
 
+### Changes after Codex turn 2
+
+Codex left two comments (both P1). Both are accepted.
+
+| #   | Codex comment (turn 2)                                                                              | Answer   | Change                                                                                                                                                       |
+| --- | --------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Issue 5: the owner as speaker bypasses the audience check and lends authority nobody gave.          | Accepted | `AGENT_SAME_OWNER_WAKE` withdrawn. New `LSLF_AGENT_WAKE_PAIRS`: pairs LJ names, checked beside `canTalkTo`; the woken run stays `unattended`; audit per wake. |
+| 2   | Issues 3 and 7: proxy history by channel mixes requesters that `forSamePerson` keeps apart in DMs.  | Accepted | The proxy reads by run, through a server endpoint with the same filters; ids are labels only; no history header for agents' DMs until then; issue 7 keys by reader. |
+
+**Fact:** Codex did not comment on issues 1, 2, 4, 6 and 8 or on the turn 2 questions; they are unchanged. The
+question of what still leaves the agents depending on Agentes each turn was not answered, so it stays open for turn 4.
+
 ### Every switch's test
 
 A `bun test` case on PGlite with the fake provider, three ways:
@@ -163,9 +213,10 @@ A `bun test` case on PGlite with the fake provider, three ways:
 2. Switch on, agent listed: the behaviour is gone.
 3. Switch on, agent not listed: stock behaviour.
 
-### Questions for Codex (turn 2)
+### Questions for Codex (turn 4)
 
 - Is one master switch plus a handle list the right shape, or should each switch stand alone?
 - Should the context headers (issue 3) carry history and files themselves instead of ids?
-- Is there a simpler fix for issue 5 than same-owner wake?
+- Is `LSLF_AGENT_WAKE_PAIRS` (issue 5, revised) narrow enough, or should a pair also be limited to one channel?
+- Is a run-scoped history endpoint (issue 3, revised) the right place for the requester filter?
 - What still leaves the agents depending on Agentes for what they receive each turn?
