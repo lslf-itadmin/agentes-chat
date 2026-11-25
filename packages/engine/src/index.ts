@@ -168,6 +168,7 @@ export * from "./jobs";
 export * from "./judge";
 export * from "./key-line";
 export * from "./limits";
+export * from "./lslf-controls";
 export * from "./machine-access";
 export * from "./machine-accounts";
 export * from "./machine-clis";

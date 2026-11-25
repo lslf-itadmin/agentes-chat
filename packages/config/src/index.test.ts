@@ -68,6 +68,25 @@ describe("loadConfig", () => {
     expect(loadConfig({ ...valid, PUBLIC_URL: "https://chat.example.com" }).EMAIL_FROM).toBeUndefined();
   });
 
+  test("agent controls (ADR 0186): stock by default; a preset, a workspace list and key=on|off pairs", () => {
+    const stock = loadConfig(valid);
+    expect(stock.LSLF_CONTROLS_PRESET).toBe("stock");
+    expect(stock.LSLF_CONTROLS_ORGS).toBeUndefined();
+    expect(stock.LSLF_WORKSPACE_SET).toBeUndefined();
+    const set = loadConfig({
+      ...valid,
+      LSLF_CONTROLS_PRESET: "steady",
+      LSLF_CONTROLS_ORGS: " a , b,,",
+      LSLF_WORKSPACE_SET: "reflect=off, summaries = on",
+    });
+    expect(set.LSLF_CONTROLS_PRESET).toBe("steady");
+    expect(set.LSLF_CONTROLS_ORGS).toEqual(["a", "b"]);
+    expect(set.LSLF_WORKSPACE_SET).toBe("reflect=off, summaries = on");
+    expect(() => loadConfig({ ...valid, LSLF_CONTROLS_PRESET: "calm" })).toThrow(/LSLF_CONTROLS_PRESET/);
+    expect(() => loadConfig({ ...valid, LSLF_WORKSPACE_SET: "reflect=maybe" })).toThrow(/LSLF_WORKSPACE_SET/);
+    expect(() => loadConfig({ ...valid, LSLF_WORKSPACE_SET: "reflect" })).toThrow(/LSLF_WORKSPACE_SET/);
+  });
+
   test("treats empty strings as unset", () => {
     expect(loadConfig({ ...valid, PORT: "" }).PORT).toBe(3000);
   });

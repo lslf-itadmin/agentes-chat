@@ -68,6 +68,7 @@ import {
   zonedParts,
 } from "../src";
 import { type LiveSteeringHooks, listenLiveSteering } from "../src/live-steer";
+import type { LslfServerSettings } from "../src/lslf-controls";
 
 export const SECRET = "test-secret-".padEnd(48, "x");
 
@@ -253,6 +254,8 @@ export async function setup(
     workTools?: boolean;
     /** Long work's safety net (ADR 0121 §1). None: off (no test moves by accident). */
     workAuto?: { afterMs?: number; afterCalls?: number; minMs?: number; tickMs?: number };
+    /** The server's agent controls (ADR 0186); none: stock. */
+    lslf?: LslfServerSettings;
   } = {},
 ) {
   const { db, close } = await createTestDatabase();
@@ -431,6 +434,7 @@ export async function setup(
     workAutoAfterCalls: options.workAuto?.afterCalls ?? 100_000,
     workAutoMinMs: options.workAuto?.minMs,
     workTickMs: options.workAuto?.tickMs ?? 60_000,
+    ...(options.lslf ? { lslf: options.lslf } : {}),
   };
   const handlers = createJobHandlers(jobDeps);
 
